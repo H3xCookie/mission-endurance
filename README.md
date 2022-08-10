@@ -1,8 +1,27 @@
 # mission-endurance
 Very nice
 
-## Software architecture description
+## 1. Preliminary data gathering from OLAF
 
-### Preliminary data gathering from OLAF
+Get information of each field which is subsidized by the EU, preferably as a shapefile. Get metadata, such as supposed crop type, approximate time of planting etc. 
 
-Get information of each field which is subsidized by the EU, preferably as a shapefile. Get metadata, such as supposed crop type, approximate time of planting etc. Superimpose the shapefiles on the satellite image (shouldn't be too hard). Perform stat analysis on the pixels of the field. They should be similar, in case they are not, probably we shot the image during harvesting. Otherwise we analyse the image for whether it has been harvested or not (ML model #1). If it has been harvested, run the before-harvest photos against a model which tries to determine the crop type (ML model #2).
+## 2. Take pictures of the fields
+
+Point the satellite to the given fields and take pictures before, during and after harvest time for each given field. For testing use SENTINEL data (same resolution). Output should be image with metadata for sat position, so we can later convert to a geocentric coordinate system. 
+
+## 3. Get training data for models
+Pls Shelly make it work 
+
+### Recognising if a field is planted with crops or already harvested
+
+Need an index of (image, shapefile, crop status), train the model on individual pixels inside the shapefile (only color information).
+
+### Identifying the crop type of the unharvested fields
+
+Same info as top section, but with crop type instead of crop/no_crop. 
+
+## 4. Image analysis
+
+Run the images with shapefiles against ML models 1 and 2 to determine what crop is there on every field, or if it is harvested. If anything unusual is reported, contact ground with relevant images, as well as the analysis performed in space. 
+
+

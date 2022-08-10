@@ -10,7 +10,7 @@ Get information of each field which is subsidized by the EU, preferably as a sha
 Point the satellite to the given fields and take pictures before, during and after harvest time for each given field. For testing use SENTINEL data (same resolution). Output should be image with metadata for sat position, so we can later convert to a geocentric coordinate system. 
 
 ## 3. Get training data for models
-Pls Shelly make it work 
+Pls Shelly make it work pls
 
 ### Recognising if a field is planted with crops or already harvested
 

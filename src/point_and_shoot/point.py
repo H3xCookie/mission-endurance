@@ -1,0 +1,2 @@
+def point(location):
+    pass

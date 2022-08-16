@@ -25,7 +25,7 @@ def compute_eb_no(input_power):
     return 10**(eb_no_db/10) 
 
 def make_graph():
-    powers = np.logspace(start=-0.5, stop=1, num=10)
+    powers = np.logspace(start=-0.5, stop=1, num=50)
     print("powers", powers)
     eb_nos = [compute_eb_no(p) for p in powers]
     eb_nos_db = [to_db(ebno) for ebno in eb_nos]

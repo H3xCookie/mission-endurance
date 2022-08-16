@@ -1,9 +1,4 @@
-from PIL import Image
-
-class SatImage:
-    def __init__(self, image, metadata):
-        self.image = image 
-        self.metadata = metadata
+from sat_image import SatImage
 
 def take_picture() -> SatImage:
     """

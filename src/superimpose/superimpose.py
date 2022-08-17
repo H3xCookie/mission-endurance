@@ -1,6 +1,7 @@
 from point_and_shoot.shoot import SatImage 
+import geopandas as gpd
+import rasterio as rio
 import os
-import shapefile as shp
 
 def filter_image(original_image: SatImage, shapefile) -> SatImage:
     """
@@ -9,10 +10,12 @@ def filter_image(original_image: SatImage, shapefile) -> SatImage:
     returns: SatImage which has been filtered of the pixels outside of the field 
     """
     # TODO 
-    shapefile_filename = os.path.join("/", "home", "vasil", "mission-endurance", "data", "bulgaria2.shp")
-    sf = shp.Reader(shapefile_filename)
-    print(sf)
-    # shapes = sf.shapes()
-    # my_poly = sf.shapes(0)
+    shapefile_filename = os.path.join("/", "home", "vasil", "mission-endurance", "data", "farm_shapefiles.zip")
+    data = gpd.read_file(shapefile_filename)
+    image_filename = os.path.join("/", "home", "vasil", "mission-endurance", "data", "Clipped_Bulgaria.tif")
+    image = rio.open(image_filename)
+    image_crs_index = int(str(image.crs).split(":")[1])
+    data = data.to_crs(image_crs_index)
+    print(data.crs, image.crs)
     return original_image
 

@@ -1,4 +1,4 @@
-from sat_image import SatImage
+from .sat_image import SatImage
 
 def take_picture() -> SatImage:
     """

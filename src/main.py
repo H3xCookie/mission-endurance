@@ -7,8 +7,6 @@ def main():
     image = shoot.take_picture()
     shapefile = 0
     filtered_image = superimpose.filter_image(image, shapefile)
-        
-    
 
 
 if __name__ == "__main__":

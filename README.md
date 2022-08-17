@@ -20,7 +20,7 @@ Provides the `point` and `shoot` functions and the `SatImage` class, which store
 
 ### `superimpose`
 
-Provides the `filter_image` function. It takes a sat image and the shapefile of a field on that image, and blackens out all pixels that are not inside the shapefile.
+Provides the `filter_image` function. It takes a sat image and the shapefile of a field on that image, and blackens out all pixels that are not inside the shapefile. NOTE!!! currently it only works with EPSG coordinate systems.
 
 ### `image_analysis`
 

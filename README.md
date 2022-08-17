@@ -16,7 +16,7 @@ When the satellite is given a command to shoot a field, it points to that partic
 
 ### `point_and_shoot`
 
-Provides the `point` and `shoot` functions, the `SatImage` class, which stores the satellite image and its metadata.
+Provides the `point` and `shoot` functions and the `SatImage` class, which stores the satellite image and its metadata.
 
 ### `superimpose`
 
@@ -24,5 +24,4 @@ Provides the `filter_image` function. It takes a sat image and the shapefile of 
 
 ### `image_analysis`
 
-pass
-
+Analyses the filtered image (where all the points outside the field are blackened). It tries to determine what is on the field.

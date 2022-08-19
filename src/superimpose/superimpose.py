@@ -1,7 +1,6 @@
 from point_and_shoot.shoot import SatImage 
 import numpy as np
 import geopandas as gpd
-from shapely.geometry import Polygon, Point
 import rasterio, rasterio.plot
 import rioxarray
 import matplotlib.pyplot as plt
@@ -25,7 +24,7 @@ def filter_image(original_image: SatImage, shapefile: gpd.GeoDataFrame) -> SatIm
 
     rio_image = rioxarray.open_rasterio(image)
      
-    cropped_image = rio_image.rio.clip(data["geometry"], data.crs)
+    cropped_image = rio_image.rio.clip(data["geometry"].iloc[[0]], data.crs)
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
 

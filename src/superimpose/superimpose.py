@@ -19,19 +19,24 @@ def filter_image(original_image: SatImage, shapefile: gpd.GeoDataFrame) -> SatIm
         # works only for EPSG coordinate system
         image_crs_index = int(str(image.crs).split(":")[1])
         data = gpd.GeoDataFrame(shapefile.to_crs(image_crs_index))
-        polygons = list(data["geometry"])
-        interesting_polygon = polygons[0]
 
-        
         # show the image and the shapefiles
         fig, ax = plt.subplots()
         bounds = [image.bounds[0], image.bounds[2], image.bounds[1], image.bounds[3]]
         
         ax = rasterio.plot.show(image, extent=bounds, ax=ax)
-        our_series = gpd.GeoSeries([interesting_polygon])
-        # data["geometry"].plot(ax=ax)
-        our_series.plot(ax=ax)
+        data["geometry"].plot(ax=ax)
         plt.show()
-        return original_image
+
+    # create new file with name <image_filename>_modified.<image_extension>
+    upper_path = os.path.abspath(os.path.dirname(original_image.image_filename))
+    filename = os.path.basename(original_image.image_filename)
+    name = "".join(filename.split(".")[:-1])
+    extension = filename.split(".")[-1]
+    new_name = name+"_modified"+extension
+
+    # with rasterio.open(new_name, "w") as new_image:
+    #     new_image.write()
+    return original_image
 
 

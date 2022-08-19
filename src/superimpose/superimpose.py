@@ -1,7 +1,9 @@
 from point_and_shoot.shoot import SatImage 
 import numpy as np
 import geopandas as gpd
+from shapely.geometry import Polygon, Point
 import rasterio, rasterio.plot
+import rioxarray
 import matplotlib.pyplot as plt
 import os
 
@@ -15,28 +17,24 @@ def filter_image(original_image: SatImage, shapefile: gpd.GeoDataFrame) -> SatIm
     shapefile: shapefile read by `gpd.read_file(<path_to_shapefile>.zip)`
     returns: SatImage which has been filtered of the pixels outside of the field 
     """
-    with rasterio.open(original_image.image_filename) as image:
-        # works only for EPSG coordinate system
-        image_crs_index = int(str(image.crs).split(":")[1])
-        data = gpd.GeoDataFrame(shapefile.to_crs(image_crs_index))
+    image = original_image.image # rasterio image
+    # works only for EPSG coordinate system
+    original_image_crs_index = int(str(image.crs).split(":")[1])
+    # make shapefile to be in the same coordinate system as image
+    data = gpd.GeoDataFrame(shapefile.to_crs(original_image_crs_index))
 
-        # show the image and the shapefiles
-        fig, ax = plt.subplots()
-        bounds = [image.bounds[0], image.bounds[2], image.bounds[1], image.bounds[3]]
-        
-        ax = rasterio.plot.show(image, extent=bounds, ax=ax)
-        data["geometry"].plot(ax=ax)
-        plt.show()
+    rio_image = rioxarray.open_rasterio(image)
+     
+    cropped_image = rio_image.rio.clip(data["geometry"], data.crs)
 
-    # create new file with name <image_filename>_modified.<image_extension>
-    upper_path = os.path.abspath(os.path.dirname(original_image.image_filename))
-    filename = os.path.basename(original_image.image_filename)
-    name = "".join(filename.split(".")[:-1])
-    extension = filename.split(".")[-1]
-    new_name = name+"_modified"+extension
+    fig, (ax1, ax2) = plt.subplots(1, 2)
 
-    # with rasterio.open(new_name, "w") as new_image:
-    #     new_image.write()
+    rio_image.plot.imshow(ax=ax1)
+    data["geometry"].plot(ax=ax1)
+    cropped_image.plot.imshow(ax=ax2)
+    plt.show()
+    
+
     return original_image
 
 

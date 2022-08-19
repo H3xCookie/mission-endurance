@@ -31,7 +31,7 @@ def take_picture() -> SatImage:
         mod_image.write(image_data)
         pass
      
-    return SatImage(modified_image_filename, 1) 
+    return SatImage(modified_image_filename) 
 
 
 

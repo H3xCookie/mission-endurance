@@ -22,16 +22,14 @@ def take_picture() -> SatImage:
         image_data = image.read((3, 2, 1))
 
         max_value = image_data.max()
-        print(image_data.min(), image_data.max())
         image_data = image_data / (max_value/254.99)
         image_data = image_data.astype(np.uint8)
-        print(image_data.min(), image_data.max())
 
     with rasterio.open(modified_image_filename, "w", **profile) as mod_image:
         mod_image.write(image_data)
         pass
      
-    return SatImage(modified_image_filename) 
+    return SatImage(filename=modified_image_filename) 
 
 
 

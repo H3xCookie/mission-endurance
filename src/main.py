@@ -11,6 +11,7 @@ def main():
     shapefile_filename = os.path.join("/", "home", "vasil", "mission-endurance", "data", "farm_shapefiles.zip")
     data = gpd.read_file(shapefile_filename)
     filtered_image = superimpose.filter_image(image, data)
+    print(filtered_image.data.shape)
 
 
 if __name__ == "__main__":

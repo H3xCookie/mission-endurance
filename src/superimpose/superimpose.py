@@ -6,8 +6,14 @@ import rioxarray
 import matplotlib.pyplot as plt
 import os
 
+class MLModelInput:
+    def __init__(self, data):
+        """
+        data: np.ndarray of shape (n_channels, height, width). If n_channels=3 they are R, G, B
+        """
+        self.data = data
 
-def filter_image(original_image: SatImage, shapefile: gpd.GeoDataFrame) -> SatImage:
+def filter_image(original_image: SatImage, shapefile: gpd.GeoDataFrame) -> MLModelInput:
     """
     takes a SatImage object and a shapefile corresponding to a field on that image, and makes it so that everything outisde the shapefile
     has a color (0, 0, 0). 
@@ -24,16 +30,18 @@ def filter_image(original_image: SatImage, shapefile: gpd.GeoDataFrame) -> SatIm
 
     rio_image = rioxarray.open_rasterio(image)
      
-    cropped_image = rio_image.rio.clip(data["geometry"].iloc[[0]], data.crs)
+    cropped_image = rio_image.rio.clip(data["geometry"], data.crs)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    # fig, (ax1, ax2) = plt.subplots(1, 2)
 
-    rio_image.plot.imshow(ax=ax1)
-    data["geometry"].plot(ax=ax1)
-    cropped_image.plot.imshow(ax=ax2)
-    plt.show()
-    
+    # data["geometry"].plot(ax=ax1)
+    # rio_image.plot.imshow(ax=ax1)
+    # cropped_image.plot.imshow(ax=ax2)
 
-    return original_image
+    # fig, ax = plt.subplots()
 
+    # # data["geometry"].plot(ax=ax)
+    # cropped_image.plot.imshow(ax=ax)
+    # plt.show()
+    return MLModelInput(cropped_image.data)
 

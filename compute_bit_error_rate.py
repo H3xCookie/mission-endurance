@@ -31,7 +31,7 @@ def compute_eb_no(input_power, d):
 
 def make_graph():
     p1 = 10**(46/10) / 1000
-    distances = np.linspace(start=7, stop=10, num=50) 
+    distances = np.linspace(start=7, stop=8, num=50) 
     eb_nos = [compute_eb_no(p1, 10**d) for d in distances]
     eb_nos_db = [to_db(ebno) for ebno in eb_nos]
     print(eb_nos_db)

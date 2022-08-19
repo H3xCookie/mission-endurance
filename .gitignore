@@ -1,3 +1,4 @@
 data/
 endur-env/
 __pycache__/
+compute_bit_error_rate.py

@@ -8,4 +8,7 @@ xml_file="./api_search_results/OSquery-result.xml"
 csv_file="./api_search_results/products-list.csv"
 
 # echo "./dhusget.sh -m Sentinel-2 -S $start_time -E $end_time -c"
-./dhusget.sh -u vaskonikolov2003 -p $password -m Sentinel-2 -S $start_time -E $end_time -c $location -q $xml_file -C $csv_file
+./dhusget.sh -u vaskonikolov2003 -p $password \
+    -m Sentinel-2 -S $start_time -E $end_time -c $location \
+    -l 1 -q $xml_file -C $csv_file \
+    -o all -D

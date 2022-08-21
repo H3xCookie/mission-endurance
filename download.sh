@@ -2,7 +2,7 @@
 
 start_time="2022-07-01T00:00:00.000Z"
 end_time="2022-08-01T00:00:00.000Z"
-location="43.7,27.1:43.8,27.2"
+location="28.2,43.5:27.9,43.7"
 password=$(sudo cat .sentinel_api_password)
 xml_file="./api_search_results/OSquery-result.xml"
 csv_file="./api_search_results/products-list.csv"

@@ -30,18 +30,13 @@ def filter_image(original_image: SatImage, shapefile: gpd.GeoDataFrame) -> MLMod
 
     rio_image = rioxarray.open_rasterio(image)
      
-    cropped_image = rio_image.rio.clip(data["geometry"], data.crs)
-
-    # fig, (ax1, ax2) = plt.subplots(1, 2)
-
-    # data["geometry"].plot(ax=ax1)
-    # rio_image.plot.imshow(ax=ax1)
-    # cropped_image.plot.imshow(ax=ax2)
+    # cropped_image = rio_image.rio.clip(data["geometry"][[0]], data.crs)
 
     fig, ax = plt.subplots()
+    rio_image.plot.imshow(ax=ax)
 
     # data["geometry"].plot(ax=ax)
-    cropped_image.plot.imshow(ax=ax)
+    # cropped_image.plot.imshow(ax=ax)
     plt.show()
     return MLModelInput(cropped_image.data)
 

@@ -38,10 +38,10 @@ def filter_image(original_image: SatImage, shapefile: gpd.GeoDataFrame) -> MLMod
     # rio_image.plot.imshow(ax=ax1)
     # cropped_image.plot.imshow(ax=ax2)
 
-    # fig, ax = plt.subplots()
+    fig, ax = plt.subplots()
 
-    # # data["geometry"].plot(ax=ax)
-    # cropped_image.plot.imshow(ax=ax)
-    # plt.show()
+    # data["geometry"].plot(ax=ax)
+    cropped_image.plot.imshow(ax=ax)
+    plt.show()
     return MLModelInput(cropped_image.data)
 

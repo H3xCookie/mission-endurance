@@ -2,3 +2,6 @@ data/
 endur-env/
 __pycache__/
 compute_bit_error_rate.py
+api_search_results/
+product_list
+.sentinel_api_password

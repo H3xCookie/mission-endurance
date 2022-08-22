@@ -12,7 +12,16 @@
 
 When the satellite is given a command to shoot a field, it points to that particular field and takes a photo. For testing this will be emulated by the `point_and_shoot` module returning SENTINEL-2 images, together with their metadata. With the given `Field` object, we come up with some math to superimpose the field on the image, so that we know which pixels are inside the field and which are not. Afterwards we can feed those pixels/the whole image to a model which, together with time of the picture, would determine whether the field has anything planted on it. If it sees a field which has noting planted on it, send info back to Earth. 
 
+
 ## Software modules
+
+### `sent_to_tif.sh`
+
+Calls the API and converts the images to .tif GeoTIFF images. Stores them in a separate folder (./PRODUCT_ZIP).
+
+### `main.py` 
+
+Pass a .tif image as an argument and shapefiles and it crops the image so only the shapefiles are visible, everything else is black. This is the input to any ML model we may use.
 
 ### `point_and_shoot`
 

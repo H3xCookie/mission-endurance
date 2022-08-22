@@ -11,7 +11,6 @@ from pathlib import Path
 def complete(text, state):
     return (glob.glob(text+'*')+[None])[state]
 
-
 def get_immediate_subdirectories(a_dir):
     return [name for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]
@@ -116,7 +115,7 @@ def generate_all_bands(unprocessedBandPath, granule, outputPathSubdirectory):
     return(outPutFullPath)
 
 base_dir = os.getcwd()
-outputPath = os.path.join(base_dir, "OUTPUT_TIF/")
+outputPath = os.path.join(base_dir, "data", "OUTPUT_TIF/")
 readline.set_completer_delims(' \t\n;')
 readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)

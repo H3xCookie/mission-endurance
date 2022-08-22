@@ -7,12 +7,12 @@ from superimpose import superimpose
 
 def main():
     """
-    pass the location of the tif file relative to the main dir(~/mission-endurance/) 
+    pass the location of the tif file relative to the main dir(~/mission-endurance/)
     """
     parser = argparse.ArgumentParser(description="Prepare .tif image for ML model")
     parser.add_argument("--image", required=True)
     args = parser.parse_args()
-    image_location = args.image 
+    image_location = args.image
 
     pointing_location = (0, 0)
     point.point(pointing_location)
@@ -20,9 +20,7 @@ def main():
 
     shapefile_filename = os.path.join("/", "home", "vasil", "mission-endurance", "data", "farm_shapefiles.zip")
     data = gpd.read_file(shapefile_filename)
-    print(data["geometry"].centroid)
     filtered_image = superimpose.filter_image(image, data)
-    print(filtered_image.data.shape)
 
 if __name__ == "__main__":
     main()

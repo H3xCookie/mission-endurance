@@ -1,3 +1,3 @@
 rm ./api_search_results/*
-rm -r ./PRODUCT ./MANIFEST ./logs
+# rm -r ./data/PRODUCT ./MANIFEST ./logs
 

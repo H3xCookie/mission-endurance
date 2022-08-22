@@ -14,13 +14,13 @@ When the satellite is given a command to shoot a field, it points to that partic
 
 ## Example usage
 
-First we identify an area of interest and pick shapefiles of some fields in that area. We run `./scripts/sent_to_tif.sh` with the correct location data, cloud coverage and dates of interest. By default it downloads one image in the given window, can be modified. This creates a GeoTIFF file in `./OUTPUT_TIF/<image_name>_PROCESSED/merged.tif`. Pass that as an `--image` argument to `./src/main.py`, it will create `MLModelInput` class, which is the final data used for analysis.
+First we identify an area of interest and pick shapefiles of some fields in that area. We run `./scripts/sent_to_tif.sh` with the correct location data, cloud coverage and dates of interest. By default it downloads one image in the given window, can be modified. This creates a GeoTIFF file in `./data/OUTPUT_TIF/<image_name>_PROCESSED/merged.tif`. Pass that as an `--image` argument to `./src/main.py`, it will create `MLModelInput` class, which is the final data used for analysis.
 
 ## Software modules
 
 ### `sent_to_tif.sh`
 
-Calls the API and converts the images to .tif GeoTIFF images. Stores them in a separate folder (./PRODUCT_ZIP).
+Calls the API and converts the images to .tif GeoTIFF images. Stores them in a separate folder (`./data/PRODUCT_ZIP`).
 
 ### `main.py` 
 

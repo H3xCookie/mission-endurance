@@ -16,9 +16,12 @@ def take_picture_from_file(filename) -> SatImage:
             dtype=rasterio.uint8,
             count=3
         )
-        image_data = image.read((2, 3, 4))
+        bands = (4, 3, 2)
+        image_data = image.read(bands)
 
         max_value = image_data.max()
+        print(max_value)
+
         image_data = image_data / (max_value/254.99)
         image_data = image_data.astype(np.uint8)
         print(image_data.shape)

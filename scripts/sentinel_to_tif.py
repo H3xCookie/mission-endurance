@@ -3,19 +3,21 @@ import os
 from subprocess import run 
 import argparse
 
-
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-c", "--clean", action="store_true")
-parser.add_argument("-d", "--download", action="store_true")
+parser.add_argument("--deep_clean", action="store_true")
+parser.add_argument("--clean", action="store_true")
 
 args = parser.parse_args()
 
+if args.deep_clean:
+    if input("do u really want to delete everything!!! y/n").lower() == "y":
+        os.system("./scripts/deep_clean.sh")
+        # download .zip files to the ./data/PRODUCT_ZIP folder
+        os.system("./scripts/download.sh")
+
 if args.clean:
     os.system("./scripts/clean.sh")
-
-if args.download:
-    os.system("./scripts/download.sh")
 
 os.chdir("/home/vasil/mission-endurance/")
 all_files = os.listdir("./data/PRODUCT_ZIP/")
@@ -24,9 +26,8 @@ for name in all_files:
     extension = name.split(".")[-1]
     if extension == "zip":
         zip_files.append(name)
-
     
-# pass zip filenames to converter from zip to .tif
+# convert .zip files to ./data/OUTPUT_TIF/<path>_PROCESSED/merged.tif
 tiff_image_filenames = []
 for zip_name in zip_files:
     zip_name_no_ext = "".join(zip_name.split(".")[:-1])
@@ -35,5 +36,6 @@ for zip_name in zip_files:
     tiff_name = f"./data/OUTPUT_TIF/{zip_name_no_ext}_PROCESSED/merged.tif" 
     tiff_image_filenames.append(tiff_name)
 
+print("tif filenames: ")
 print(tiff_image_filenames)
 

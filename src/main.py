@@ -9,8 +9,6 @@ def main():
     """
     pass the location of the tif file relative to the main dir(~/mission-endurance/) 
     """
-    # folder = sys.argv[1].split(".")[0]
-    # image_location = os.path.join(os.getcwd(), "OUTPUT_TIF", f"{folder}_PROCESSED", "merged.tif")
     parser = argparse.ArgumentParser(description="Prepare .tif image for ML model")
     parser.add_argument("--image", required=True)
     args = parser.parse_args()

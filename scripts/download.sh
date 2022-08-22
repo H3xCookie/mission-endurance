@@ -6,13 +6,27 @@ location="28.2,43.5:27.9,43.7"
 password=$(sudo cat ./.sentinel_api_password)
 xml_file="./api_search_results/OSquery-result.xml"
 csv_file="./api_search_results/products-list.csv"
-
-# echo "./dhusget.sh -m Sentinel-2 -S $start_time -E $end_time -c"
-./dhusget.sh -u vaskonikolov2003 -p $password \
-    -m Sentinel-2 -S $start_time -E $end_time -c $location \
+# get number of results
+./scripts/dhusget.sh -u vaskonikolov2003 -p $password \
+    -m Sentinel-2 -S $start_time -E $end_time -c $location -F 'cloudcoverpercentage:[0 TO 10]'\
     -l 1 -q $xml_file -C $csv_file \
-    -o product -O ./PRODUCT_ZIP/ -D
 
-# autoremove useless files
-rm -r ./logs
-rm ./failed_MD5_check_list.txt
+    n_results=$(wc -l < ./api_search_results/products-list.csv)
+echo "num of results is"
+echo $n_results
+if [ $n_results -lt 1 ]; then
+    echo "there are no results found"
+    echo "num of results"
+    echo $n_results
+    exit -1
+fi
+
+# # echo "./dhusget.sh -m Sentinel-2 -S $start_time -E $end_time -c"
+# ./dhusget.sh -u vaskonikolov2003 -p $password \
+#     -m Sentinel-2 -S $start_time -E $end_time -c $location -F 'cloudcoverpercentage:[0 TO 9.4]'\
+#     -l 1 -q $xml_file -C $csv_file \
+#     -o product -O ./PRODUCT_ZIP/ -D
+
+# # autoremove useless files
+# rm -r ./logs
+# rm ./failed_MD5_check_list.txt

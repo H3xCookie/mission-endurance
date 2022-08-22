@@ -16,7 +16,6 @@ def get_immediate_subdirectories(a_dir):
     return [name for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]
 
-
 def generate_geotiffs(inputProductPath, outputPath):
     basename =  os.path.basename(inputProductPath)
     if os.path.isdir(outputPath + basename[:-3] + "SAFE") :
@@ -52,7 +51,6 @@ def generate_geotiffs(inputProductPath, outputPath):
         params.append(granule)
 
     gdal_merge.main(params)
-
 
 def generate_all_bands(unprocessedBandPath, granule, outputPathSubdirectory):
     granuleBandTemplate =  granule[:-6]
@@ -122,9 +120,6 @@ outputPath = os.path.join(base_dir, "OUTPUT_TIF/")
 readline.set_completer_delims(' \t\n;')
 readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)
-# inputPath = input("Input Path? ")
-# enter the name of the zip as an argument to python3 tiff-generator.py
-# inputPath = os.path.join(base_dir, "PRODUCT", sys.argv[1])
 inputPath = sys.argv[1]
 
 start_time = time.time()

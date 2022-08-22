@@ -6,9 +6,10 @@ location="28.2,43.5:27.9,43.7"
 password=$(sudo cat ./.sentinel_api_password)
 xml_file="./api_search_results/OSquery-result.xml"
 csv_file="./api_search_results/products-list.csv"
+cloud_cover_filter='cloudcoverpercentage:[0 TO 10]'
 # get number of results
 ./scripts/dhusget.sh -u vaskonikolov2003 -p $password \
-    -m Sentinel-2 -S $start_time -E $end_time -c $location -F 'cloudcoverpercentage:[0 TO 10]'\
+    -m Sentinel-2 -S $start_time -E $end_time -c $location -F $cloud_cover_filter\
     -l 1 -q $xml_file -C $csv_file \
 
     n_results=$(wc -l < ./api_search_results/products-list.csv)
@@ -21,12 +22,12 @@ if [ $n_results -lt 1 ]; then
     exit -1
 fi
 
-# # echo "./dhusget.sh -m Sentinel-2 -S $start_time -E $end_time -c"
-# ./dhusget.sh -u vaskonikolov2003 -p $password \
-#     -m Sentinel-2 -S $start_time -E $end_time -c $location -F 'cloudcoverpercentage:[0 TO 9.4]'\
-#     -l 1 -q $xml_file -C $csv_file \
-#     -o product -O ./PRODUCT_ZIP/ -D
+# echo "./dhusget.sh -m Sentinel-2 -S $start_time -E $end_time -c"
+./dhusget.sh -u vaskonikolov2003 -p $password \
+    -m Sentinel-2 -S $start_time -E $end_time -c $location -F ${cloud_cover_filter}\
+    -l 1 -q $xml_file -C $csv_file \
+    -o product -O ./PRODUCT_ZIP/ -D
 
-# # autoremove useless files
-# rm -r ./logs
-# rm ./failed_MD5_check_list.txt
+# autoremove useless files
+rm -r ./logs
+rm ./failed_MD5_check_list.txt

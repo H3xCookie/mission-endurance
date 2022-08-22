@@ -2,6 +2,7 @@ from .sat_image import SatImage
 import os
 import numpy as np
 import rasterio
+import matplotlib.pyplot as plt
 def take_picture_from_file(filename) -> SatImage:
     """
     opens a .tif GeoTIFF image 
@@ -20,12 +21,16 @@ def take_picture_from_file(filename) -> SatImage:
         image_data = image.read(bands)
 
         max_value = image_data.max()
-        print(max_value)
+        # max_value = np.quantile(image_data, 0.99999)
 
         image_data = image_data / (max_value/254.99)
+        print(f"new image max: {image_data.max()}")
         image_data = image_data.astype(np.uint8)
-        print(image_data.shape)
-
+        fig, ax = plt.subplots(1, 3)
+        for band in range(3):
+            ax[band].hist(image_data[band, :, :].flatten(), bins=50)
+        plt.show()
+        
     with rasterio.open(modified_image_filename, "w", **new_profile) as mod_image:
         mod_image.write(image_data)
         pass

@@ -7,13 +7,6 @@ def take_picture_from_file(filename) -> SatImage:
     opens a .tif GeoTIFF image 
     returns: An image and its metadata, TBD
     """ 
-    # image_filename = os.path.join(
-    #     "/", 
-    #     "home", "vasil", "mission-endurance", "Output",
-    #     "S2B_MSIL2A_20220731T085559_N0400_R007_T35TNH_20220731T103425_PROCESSED", 
-    #     "merged.tif"
-    # )
-    
     modified_image_filename = os.path.join("/", "home", "vasil", "mission-endurance", "data", "Clipped_Bulgaria_modified.tif")
 
     # make the image uint8, with max value 255

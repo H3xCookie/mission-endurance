@@ -1,17 +1,23 @@
 import sys
 import os
+import argparse
 import geopandas as gpd
 from point_and_shoot import point, shoot
 from superimpose import superimpose
 
 def main():
     """
-    pass the folder which contains the merged.tif file, without the _PROCESSED part, as an argument to main
+    pass the location of the tif file relative to the main dir(~/mission-endurance/) 
     """
-    folder = sys.argv[1].split(".")[0]
-    image_location = os.path.join(os.getcwd(), "OUTPUT_TIF", f"{folder}_PROCESSED", "merged.tif")
-    location = (0, 0)
-    point.point(location)
+    # folder = sys.argv[1].split(".")[0]
+    # image_location = os.path.join(os.getcwd(), "OUTPUT_TIF", f"{folder}_PROCESSED", "merged.tif")
+    parser = argparse.ArgumentParser(description="Prepare .tif image for ML model")
+    parser.add_argument("--image", required=True)
+    args = parser.parse_args()
+    image_location = args.image 
+
+    pointing_location = (0, 0)
+    point.point(pointing_location)
     image = shoot.take_picture_from_file(image_location)
 
     shapefile_filename = os.path.join("/", "home", "vasil", "mission-endurance", "data", "farm_shapefiles.zip")

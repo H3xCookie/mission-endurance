@@ -35,6 +35,8 @@ for zip_name in zip_files:
     os.system(f"python3 ./scripts/Sentinel-Scripts-master/sentinel_2/tiff-generator.py {full_zip_path}")
     tiff_name = f"./data/OUTPUT_TIF/{zip_name_no_ext}_PROCESSED/merged.tif" 
     os.system(f"rm -r ./data/OUTPUT_TIF/{zip_name_no_ext}.SAFE")
+    os.system(f"rm -r ./data/OUTPUT_TIF/{zip_name_no_ext}_PROCESSED/IMAGE_DATA/")
+
     tiff_image_filenames.append(tiff_name)
 
 print("tif filenames: ")

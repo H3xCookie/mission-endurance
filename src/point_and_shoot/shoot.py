@@ -20,11 +20,12 @@ def take_picture_from_file(filename) -> SatImage:
         bands = (4, 3, 2)
         image_data = image.read(bands)
 
-        max_value = image_data.max()
-        # max_value = np.quantile(image_data, 0.99999)
+        # max_value = image_data.max()
+        max_value = np.quantile(image_data, 0.9999)
 
         image_data = image_data / (max_value/254.99)
         print(f"new image max: {image_data.max()}")
+        image_data = np.clip(image_data, 0, 255)
         image_data = image_data.astype(np.uint8)
         fig, ax = plt.subplots(1, 3)
         for band in range(3):

@@ -28,7 +28,9 @@ def main():
     h, w = transformed_image.shape
     # !IMPORTANT images have to be uint8 for warpPerspective
     transformed_image = transformed_image.astype(np.uint8) * 255
-    fin = cv2.warpPerspective(transformed_image, homography, (w, h))
+    fin = cv2.warpPerspective(
+        transformed_image, homography, (w, h), flags=cv2.INTER_NEAREST
+    )
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.imshow(base_image)
     ax2.imshow(fin)

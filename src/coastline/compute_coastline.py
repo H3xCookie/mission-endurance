@@ -1,6 +1,6 @@
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def blue_index(bgr):

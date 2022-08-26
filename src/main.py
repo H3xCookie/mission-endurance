@@ -3,6 +3,7 @@ import os
 import sys
 
 import cv2
+import numpy as np
 import matplotlib.pyplot as plt
 
 from coastline import compute_coastline, correlate_images
@@ -21,14 +22,16 @@ def main():
     transformed_image = compute_coastline.compute_coastline(args.im)
     print("computed base and transformed coastlines")
 
-    trans_back_image = correlate_images.compute_affine_transform(
+    homography = correlate_images.compute_affine_transform(
         base_image, transformed_image
     )
-
-    print(trans_back_image)
+    h, w = transformed_image.shape
+    # !IMPORTANT images have to be uint8 for warpPerspective
+    transformed_image = transformed_image.astype(np.uint8) * 255
+    fin = cv2.warpPerspective(transformed_image, homography, (w, h))
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.imshow(base_image)
-    ax2.imshow(trans_back_image)
+    ax2.imshow(fin)
     plt.show()
 
 

@@ -1,34 +1,35 @@
-import sys
-import os
 import argparse
-import geopandas as gpd
-from point_and_shoot import point, shoot
-from superimpose import superimpose
-from image_analysis import identify_crop
+import os
+import sys
+
+import cv2
+import matplotlib.pyplot as plt
+
+from coastline import compute_coastline, correlate_images
 
 
 def main():
     """
-    pass the location of the tif file relative to the main dir(~/mission-endurance/)
+    Pass a coastline file, corresponding to the coastline computed on Earth, and an image from the satellite
     """
     parser = argparse.ArgumentParser(description="Prepare .tif image for ML model")
-    parser.add_argument("--image", required=True)
+    # parser.add_argument("--coastline", required=True)
+    parser.add_argument("--sat_image", required=True)
+    parser.add_argument("--im", required=True)
     args = parser.parse_args()
-    image_location = args.image
+    base_image = compute_coastline.compute_coastline(args.sat_image)
+    transformed_image = compute_coastline.compute_coastline(args.im)
+    print("computed base and transformed coastlines")
 
-    pointing_location = (0, 0)
-    point.point(pointing_location)
-    bands = (4, 3, 2, 8)
-    image = shoot.take_picture_from_file(image_location, bands)
-
-    shapefile_filename = os.path.join(
-        "/", "home", "vasil", "mission-endurance", "data", "farm_shapefiles.zip"
+    trans_back_image = correlate_images.compute_affine_transform(
+        base_image, transformed_image
     )
-    data = gpd.read_file(shapefile_filename)
 
-    filtered_image = superimpose.filter_image(image, data)
-    ndvi = identify_crop.ndvi_of_field(filtered_image)
-    print(ndvi)
+    print(trans_back_image)
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    ax1.imshow(base_image)
+    ax2.imshow(trans_back_image)
+    plt.show()
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 import sys
 import os
-from subprocess import run 
+from subprocess import run
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -26,14 +26,16 @@ for name in all_files:
     extension = name.split(".")[-1]
     if extension == "zip":
         zip_files.append(name)
-    
+
 # convert .zip files to ./data/OUTPUT_TIF/<path>_PROCESSED/merged.tif
 tiff_image_filenames = []
 for zip_name in zip_files:
     zip_name_no_ext = "".join(zip_name.split(".")[:-1])
     full_zip_path = os.path.join(os.path.join("./data/PRODUCT_ZIP", zip_name))
-    os.system(f"python3 ./scripts/Sentinel-Scripts-master/sentinel_2/tiff-generator.py {full_zip_path}")
-    tiff_name = f"./data/OUTPUT_TIF/{zip_name_no_ext}_PROCESSED/merged.tif" 
+    os.system(
+        f"python3 ./scripts/Sentinel-Scripts-master/sentinel_2/tiff-generator.py {full_zip_path}"
+    )
+    tiff_name = f"./data/OUTPUT_TIF/{zip_name_no_ext}_PROCESSED/merged.tif"
     os.system(f"rm -r ./data/OUTPUT_TIF/{zip_name_no_ext}.SAFE")
     os.system(f"rm -r ./data/OUTPUT_TIF/{zip_name_no_ext}_PROCESSED/IMAGE_DATA/")
 
@@ -41,4 +43,3 @@ for zip_name in zip_files:
 
 print("tif filenames: ")
 print(tiff_image_filenames)
-

@@ -1,8 +1,5 @@
-from point_and_shoot.shoot import SatImage
+from time_and_shoot.sat_image import SatImage
 import numpy as np
-import geopandas as gpd
-import rasterio, rasterio.plot
-import rioxarray
 import matplotlib.pyplot as plt
 import os
 

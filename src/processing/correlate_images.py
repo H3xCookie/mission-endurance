@@ -34,10 +34,10 @@ def compute_affine_transform(image_from_sat: SatImage, image_to_sat: SatImage):
     print(f"Number of matches: {n_matches}")
     if False:
         matchedVis = cv2.drawMatches(
-            image_to, kpsA, image_from, kpsB, matches[:100], None
+            image_to, kpsA, image_from, kpsB, matches[:30], None
         )
-        cv2.imshow("Matched Keypoints", matchedVis)
-        cv2.waitKey(0)
+        plt.imshow(matchedVis)
+        plt.show()
 
     p1 = np.zeros((n_matches, 2))
     p2 = np.zeros((n_matches, 2))

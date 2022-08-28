@@ -6,7 +6,9 @@ from time_and_shoot.sat_image import SatImage
 
 
 def blue_index(bgr):
-    return (2 * int(bgr[0]) - int(bgr[1]) - int(bgr[2])) / bgr[0]
+    if bgr[0] != 0:
+        return (2 * int(bgr[0]) - int(bgr[1]) - int(bgr[2])) / bgr[0]
+    return -1
 
 
 def water_index(bgr):
@@ -22,8 +24,9 @@ def compute_coastline(sat_image: SatImage, csv=False) -> SatImage:
     # TODO make it better
     image = sat_image.data
     height, width, _ = image.shape
-    filter_size = int(0.01 * (width + height) / 2)
-    img_blur = cv2.GaussianBlur(image, (filter_size, filter_size), 0)
+    # filter_size = int(0.01 * (width + height) / 2)
+    # img_blur = cv2.GaussianBlur(image, (filter_size, filter_size), 0)
+    img_blur = image
 
     flat_data = img_blur.reshape((width * height, 3))
     blue_values = np.array([blue_index(pixel) for pixel in flat_data])

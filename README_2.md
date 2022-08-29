@@ -27,14 +27,16 @@ Recieves the time at which is should shoot the image, takes a picture and saves 
 
 ### `preprocessing`
 
-Removes cloud cover. TODO implement!
+Removes cloud cover(TODO implement!) and computes/loads the coastline image. At the moment it only saves it as a boolean .tiff, TODO improve.
 
 ### `processing`
 
-### `superimpose`
-
-Provides the `filter_image` function. It takes a sat image and the shapefile of a field on that image, and blackens out all pixels that are not inside the shapefile. NOTE!!! currently it only works with EPSG coordinate systems.
+Computes the coastline as an identifiable feature, correlates it with features of the precomputed coastline which is already on the sat and determines the homography between the sat photo and the one on the ground. It performs this homography to get an aligned image, whose features coincide with the ones on the picture on the ground. Crops a polygon corresponding to the field out of the satellite picture, in order to easily pass it around.
 
 ### `image_analysis`
 
-Analyses the filtered image (where all the points outside the field are blackened). It tries to determine what is on the field.
+Analyses the filtered image (where all the points outside the field are blackened). It tries to determine whether something is on the field. Provides different indeces in which higher is more greenery.
+
+### `communications`
+
+An interface to the downlinking of the satellite. TODO implement!!!

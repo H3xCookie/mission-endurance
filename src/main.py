@@ -6,12 +6,12 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
+from communications import downlink
+from image_analysis import indeces, make_decision
 from preprocessing import cloud_mask, precompute_coastline
 from processing import compute_coastline, correlate_images, crop_field
 from time_and_shoot import shoot
 from time_and_shoot.sat_image import SatImage
-from image_analysis import indeces, make_decision
-from communications import downlink
 
 
 def sat_main():

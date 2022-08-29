@@ -5,7 +5,7 @@
 
 1. [Program description](#program-description)
 2. [Software modules](#software-modules)
-    1. [`point_and_shoot`](#point_and_shoot)
+    1. [`time_and_shoot`](#time_and_shoot)
     2. [`superimpose`](#superimpose)
     3. [`image_analysis`](#image_analysis)
 
@@ -21,9 +21,15 @@ First we pick a field next to a coastline, for easier correlation of coordinate 
 
 Pass a .tif image as an argument and shapefiles and it crops the image so only the shapefiles are visible, everything else is black. This is the input to any ML model we may use.
 
-### `point_and_shoot`
+### `time_and_shoot`
 
-Provides the `point` and `shoot` functions and the `SatImage` class, which stores the satellite image and its metadata.
+Recieves the time at which is should shoot the image, takes a picture and saves it. It also provides the `SatImage` class, which wraps all other images in the code. 
+
+### `preprocessing`
+
+Removes cloud cover. TODO implement!
+
+### `processing`
 
 ### `superimpose`
 

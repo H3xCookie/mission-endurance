@@ -23,11 +23,8 @@ class Polygon:
 
 
 def filter_polygon(begin_array: np.ndarray, polygon: Polygon) -> np.ndarray:
-    print(f"Begin array shape {begin_array.shape}")
     points = polygon.points
     n = int(points.shape[0])
-    print(n)
-
     coords = np.array(
         np.meshgrid(
             np.arange(begin_array.shape[0]),
@@ -35,20 +32,18 @@ def filter_polygon(begin_array: np.ndarray, polygon: Polygon) -> np.ndarray:
             indexing="ij",
         )
     )
-    coords = np.swapaxes(coords, 0, 2)
+    coords = np.moveaxis(coords, 0, 2)
+    print("coords.shape", coords.shape)
     final_arr = np.ones_like(coords[:, :, 0], dtype=bool)
-    print(final_arr)
 
     for i in range(n):
-        print(i)
         i1 = (i + 1) % n
         r = points[i1] - points[i]
-        # # rotation counter-clockwise by 90 degrees
+        # rotation counter-clockwise by 90 degrees
         normal_vec = np.zeros((2,))
-        normal_vec[0], normal_vec[1] = r[1], -r[0]
+        normal_vec[0], normal_vec[1] = -r[1], r[0]
         final_arr = final_arr & (np.dot(coords - points[i], normal_vec) > 0)
 
-    print(np.max(final_arr))
     return final_arr
 
 

@@ -22,15 +22,14 @@ def precompute_coastline():
 
 def sat_main():
     """
-    the main fn which runs on the satellite.
+    the main fn which runs on the satellite. fiedl coords must
+    be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
+    points = [[442, 205], [442, 243], [479, 243], [479, 205], [455, 180]]
     # needs to be of shape (n, 1, 2) to be able to be acted on by homography
-    # field_coords_px = np.array(
-    #     [[496, 236], [527, 236], [527, 272], [496, 272]]
-    # ).reshape((4, 1, 2))
-    field_coords_px = np.array(
-        [[496, 236], [496, 272], [527, 272], [527, 236]]
-    ).reshape((4, 1, 2))
+    field_coords_px = np.array(points).reshape((len(points), 1, 2))
+    field_coords_px = np.flip(field_coords_px, axis=2)
+
     parser = argparse.ArgumentParser(description="Pass precomputed coastline")
     parser.add_argument("--computed_coastline", required=True)
     args = parser.parse_args()
@@ -41,29 +40,32 @@ def sat_main():
         )
     )
 
-    time_to_take_picture = "2022:09:03,12:00:00,000"
     # take picture
+    time_to_take_picture = "2022:09:03,12:00:00,000"
     sat_image = shoot.take_picture(time_to_take_picture)
     sat_image = cloud_mask.mask_clouds(sat_image)
     sat_coastline = compute_coastline.compute_coastline(sat_image)
 
+    # compute and apply homography to the original sat image
     homography = correlate_images.compute_affine_transform(
         computed_coastline, sat_coastline
     )
-    # apply homography to the original sat image
     h, w = sat_image.data.shape[:2]
     aligned_image = SatImage(
         image=cv2.warpPerspective(
             sat_image.data, homography, (w, h), flags=cv2.INTER_NEAREST
         )
     )
-    # pass aligned image and coordinates to image recognition algorithm
-    polygon = superimpose.Polygon(field_coords_px.reshape((4, 2)))
-    filtered_image = superimpose.filter_polygon(aligned_image.data, polygon)
-    print("filtered image shape: ", filtered_image.shape)
-    print("filtered image type: ", filtered_image.dtype)
 
-    plt.imshow(filtered_image.astype(np.uint8) * 255)
+    # pass aligned image and coordinates to image recognition algorithm
+    polygon = superimpose.Polygon(field_coords_px.reshape((len(points), 2)))
+    field_mask = superimpose.filter_polygon(aligned_image.data, polygon)
+    plt.imshow(field_mask)
+    print("field mask shape", field_mask.shape)
+    print("sat image shape", sat_image.data.shape)
+    filtered_image = sat_image.data * field_mask[:, :, np.newaxis]
+    print(filtered_image.shape)
+    plt.imshow(filtered_image)
     plt.show()
 
     # fig, (ax1, ax2) = plt.subplots(1, 2)

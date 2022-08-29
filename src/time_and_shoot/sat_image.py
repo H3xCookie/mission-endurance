@@ -5,7 +5,7 @@ import numpy as np
 class SatImage:
     def __init__(self, **kwargs):
         """
-        pass either filename or an image read by cv2, so an np.ndarray
+        pass either filename= or an image= read by cv2, so an np.ndarray
         """
         if "image" not in kwargs and "filename" not in kwargs:
             print("specify either image=cv2.imread or filename=<fullpath>.tif")

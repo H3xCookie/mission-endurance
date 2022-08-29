@@ -25,9 +25,10 @@ def sat_main():
     the main fn which runs on the satellite. fiedl coords must
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
-    points = [[442, 205], [442, 243], [479, 243], [479, 205], [455, 180]]
+    points = [[462, 210], [469, 276], [525, 266], [516, 217]]
     # needs to be of shape (n, 1, 2) to be able to be acted on by homography
     field_coords_px = np.array(points).reshape((len(points), 1, 2))
+    # flip because y coord should be before x coord
     field_coords_px = np.flip(field_coords_px, axis=2)
 
     parser = argparse.ArgumentParser(description="Pass precomputed coastline")
@@ -60,20 +61,16 @@ def sat_main():
     # pass aligned image and coordinates to image recognition algorithm
     polygon = superimpose.Polygon(field_coords_px.reshape((len(points), 2)))
     field_mask = superimpose.filter_polygon(aligned_image.data, polygon)
-    plt.imshow(field_mask)
     print("field mask shape", field_mask.shape)
     print("sat image shape", sat_image.data.shape)
-    filtered_image = sat_image.data * field_mask[:, :, np.newaxis]
+    filtered_image = aligned_image.data * field_mask[:, :, np.newaxis]
     print(filtered_image.shape)
-    plt.imshow(filtered_image)
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    base_image = cv2.imread("./monkedir/base_image_example.tiff")
+    ax1.imshow(base_image)
+    ax2.imshow(aligned_image.data)
+    ax3.imshow(filtered_image)
     plt.show()
-
-    # fig, (ax1, ax2) = plt.subplots(1, 2)
-    # base_image_rgb = cv2.imread("./monkedir/base_image_example.tiff")
-    # base_image_rgb = np.flip(base_image_rgb, axis=2)
-    # ax1.imshow(base_image_rgb)
-    # ax2.imshow(np.flip(back_transformed_sat_image, axis=2))
-    # plt.show()
 
 
 def presentation_images():

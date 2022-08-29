@@ -35,5 +35,4 @@ def compute_coastline(sat_image: SatImage, csv=False) -> SatImage:
 
     in_sea = blue_values > 0.6
     border_initial_image = in_sea.reshape((height, width))
-    print(border_initial_image.dtype)
     return SatImage(image=border_initial_image)

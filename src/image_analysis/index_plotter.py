@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 def index(red, green, blue):
-    return (red - green) / (red + green)
+return (red - green) / (red + green)
 
 
 def sample_band(band: np.ndarray, N=500):

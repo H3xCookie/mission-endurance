@@ -10,4 +10,5 @@ logs/
 OUTPUT_TIF/
 sat-env/
 conda-env/
+geo-env/
 *.png

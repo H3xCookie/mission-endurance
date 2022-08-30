@@ -1,6 +1,4 @@
 import argparse
-import os
-import sys
 
 import cv2
 import matplotlib.pyplot as plt
@@ -10,7 +8,7 @@ from communications import downlink
 from image_analysis import indeces, make_decision
 from preprocessing import cloud_mask, precompute_coastline
 from processing import compute_coastline, correlate_images, crop_field
-from time_and_shoot import shoot
+from time_and_shoot import setup_camera, shoot
 from time_and_shoot.sat_image import SatImage
 
 
@@ -19,6 +17,7 @@ def sat_main():
     the main fn which runs on the satellite. fiedl coords must
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
+    setup_camera.turn_on_camera()
     # take picture
     time_to_take_picture = "2022:09:03,12:00:00,000"
     sat_image = shoot.take_picture(time_to_take_picture)
@@ -63,12 +62,6 @@ def sat_main():
     downlink.send_message_down(
         f"{green_index}: {make_decision.is_field_planted(green_index)}"
     )
-    # fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
-    # base_image = cv2.imread("./monkedir/base_image_example.tiff")
-    # ax1.imshow(base_image)
-    # ax2.imshow(aligned_image.data)
-    # ax3.imshow(only_field.data)
-    # plt.show()
 
 
 def presentation_images():
@@ -142,4 +135,3 @@ def presentation_images():
 if __name__ == "__main__":
     # precompute_coastline.precompute_coastline()
     sat_main()
-    # presentation_images()

@@ -6,8 +6,10 @@
 1. [Program description](#program-description)
 2. [Software modules](#software-modules)
     1. [`time_and_shoot`](#time_and_shoot)
-    2. [`superimpose`](#superimpose)
-    3. [`image_analysis`](#image_analysis)
+    2. [`preprocessing`](#preprocessing)
+    3. [`processing`](#processing)
+    4. [`image_analysis`](#image_analysis)
+    5. [`communications`](#communications)
 
 ## Program description
 

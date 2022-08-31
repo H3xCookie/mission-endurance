@@ -21,6 +21,9 @@ def sat_main():
     # take picture
     time_to_take_picture = "2022:09:03,12:00:00,000"
     sat_image = shoot.take_picture(time_to_take_picture)
+    parser = argparse.ArgumentParser(description="Pass precomputed coastline")
+    parser.add_argument("--computed_coastline", required=True)
+    args = parser.parse_args()
     sat_image = cloud_mask.mask_clouds(sat_image)
     sat_coastline = compute_coastline.compute_coastline(sat_image)
 
@@ -29,10 +32,6 @@ def sat_main():
     field_coords_px = np.array(points).reshape((len(points), 1, 2))
     # flip because y coord should be before x coord
     field_coords_px = np.flip(field_coords_px, axis=2)
-
-    parser = argparse.ArgumentParser(description="Pass precomputed coastline")
-    parser.add_argument("--computed_coastline", required=True)
-    args = parser.parse_args()
 
     computed_coastline = precompute_coastline.load_precomputed_coastline(
         args.computed_coastline

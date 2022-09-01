@@ -17,4 +17,4 @@ def take_picture(time_of_picture) -> SatImage:
     returns: A `SatImage` class, which wraps around the tif produced by the satellite
     """
     # TODO
-    return take_picture_from_file("./monkedir/transformed_image.tiff")
+    return take_picture_from_file("./monkedir/offset_stacked_rgb.tiff")

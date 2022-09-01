@@ -21,11 +21,11 @@ First we pick a field next to a coastline, for easier correlation of coordinate 
 
 ### `scripts`
 
-Contains scripts useful for downloading sentinel data and turning it into a tiff. `scripts/rgb_from_tiff.py` takes in as an argument the location of the `.SAFE` folder and creates a stacked rgb image inside it. 
+Contains scripts useful for downloading sentinel data and turning it into a tiff. `scripts/rgb_from_tiff.py` takes in as an argument the location of the `.SAFE` folder and creates a stacked rgb image inside it. Since we are running the scripst on the ground only, they use a dedicated conda environment `geo-env/`. 
 
 ### `main.py` 
 
-Pass a .tif image as an argument and shapefiles and it crops the image so only the shapefiles are visible, everything else is black. This is the input to any ML model we may use.
+Recieves the `--computed_coastline` .tiff image as input and runs the main function of the satellite. It runs inside the `sat-env` virtual environment, as defined by `libs.txt`.
 
 ### `time_and_shoot`
 

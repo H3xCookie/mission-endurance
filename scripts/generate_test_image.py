@@ -8,8 +8,8 @@ def shift_given_image():
         data = base_image.read()
         height, width = data.shape[1:]
         meta = base_image.meta
-        new_height, new_width = int(0.8 * height), int(0.7 * width)
-        offset_height, offset_width = int(0.05 * height), int(0.04 * width)
+        new_height, new_width = int(0.9 * height), int(0.92 * width)
+        offset_height, offset_width = int(0.05 * height), int(0.02 * width)
         meta.update(height=new_height, width=new_width)
         with rasterio.open(offset_filename, "w", **meta) as sat_image:
             for i in range(3):

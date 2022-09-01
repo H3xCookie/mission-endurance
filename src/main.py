@@ -82,21 +82,10 @@ def sat_main():
     for index, points in enumerate(good_fields):
         # pass aligned image and coordinates to image recognition algorithm
         poly_points = np.flip(np.array(points).reshape((len(points), 2)), axis=1)
-        print(poly_points)
-        if input("continue?") != "y":
-            break
         polygon = crop_field.Polygon(poly_points)
-        print("make field mask")
-        field_mask = crop_field.filter_polygon(sat_image.data.shape, polygon).reshape(
-            (base_h, base_w, 1)
-        )
-        # print("get filtered sat image")
-        # filtered_sat_image = SatImage(image=sat_image.data * field_mask)
-        # print("only_field")
-        # only_field = crop_field.crop_filtered_image(filtered_sat_image)
-        print("crop image to field")
-        only_field = crop_field.crop_image_to_field(sat_image.data, field_mask)
 
+        print("crop field")
+        only_field = crop_field.select_only_field(sat_image, polygon)
         # compute the Green index of the field
         print("compute index")
         green_index = indeces.green_index(only_field)
@@ -105,24 +94,14 @@ def sat_main():
             f"{green_index}: {make_decision.is_field_planted(green_index)}"
         )
         ax[0][index].imshow(only_field.data)
+
     for index, points in enumerate(bad_fields):
         # pass aligned image and coordinates to image recognition algorithm
         poly_points = np.flip(np.array(points).reshape((len(points), 2)), axis=1)
-        print(poly_points)
-        if input("continue?") != "y":
-            break
         polygon = crop_field.Polygon(poly_points)
-        print("make field mask")
-        field_mask = crop_field.filter_polygon(sat_image.data.shape, polygon).reshape(
-            (base_h, base_w, 1)
-        )
-        # print("get filtered sat image")
-        # filtered_sat_image = SatImage(image=sat_image.data * field_mask)
-        # print("only_field")
-        # only_field = crop_field.crop_filtered_image(filtered_sat_image)
-        print("crop image to field")
-        only_field = crop_field.crop_image_to_field(sat_image.data, field_mask)
 
+        print("crop field")
+        only_field = crop_field.select_only_field(sat_image, polygon)
         # compute the Green index of the field
         print("compute index")
         green_index = indeces.green_index(only_field)
@@ -131,9 +110,6 @@ def sat_main():
             f"{green_index}: {make_decision.is_field_planted(green_index)}"
         )
         ax[1][index].imshow(only_field.data)
-    # fig, ax = plt.subplots(1, 2)
-    # ax[0].imshow(sat_image.data)
-    # ax[1].imshow(only_field.data)
     plt.show()
 
 

@@ -12,3 +12,4 @@ sat-env/
 conda-env/
 geo-env/
 *.png
+/monkedir/*rgb*.tiff

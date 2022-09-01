@@ -13,3 +13,7 @@ class SatImage:
             self.data: np.ndarray = cv2.imread(kwargs["filename"])
         elif "image" in kwargs:
             self.data: np.ndarray = kwargs["image"]
+        if "cloud_mask" in kwargs:
+            self.mask = kwargs["cloud_mask"]
+        else:
+            self.mask = np.full(self.data.shape, True)

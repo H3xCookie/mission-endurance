@@ -1,18 +1,17 @@
 import cv2
-
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from time_and_shoot.sat_image import SatImage
 
 
-def compute_affine_transform(image_from_sat: SatImage, image_to_sat: SatImage):
+def compute_affine_transform(image_from_sat: SatImage, ground_image: SatImage):
     """
     computes and returns the affine transformation which maps parts of image_from to the corresponding parts on image_to
     images should be opened by cv2.imread and have one channel only, so shape (height, width)
     """
     # images should be 8 bit grayscale for detectAndCompute method
     image_from = image_from_sat.data.astype(np.uint8) * 255
-    image_to = image_to_sat.data.astype(np.uint8) * 255
+    image_to = ground_image.data.astype(np.uint8) * 255
 
     max_features = 500
     orb = cv2.ORB_create(max_features)
@@ -27,6 +26,8 @@ def compute_affine_transform(image_from_sat: SatImage, image_to_sat: SatImage):
     matches = matcher.match(descsA, descsB, None)
 
     matches = sorted(matches, key=lambda x: x.distance)
+    print(kpsB[:5])
+
     # keep only the top matches
     keep = int(len(matches) * 0.8)
     matches = matches[:keep]

@@ -17,50 +17,70 @@ def sat_main():
     the main fn which runs on the satellite. fiedl coords must
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
-    setup_camera.turn_on_camera()
-    # take picture
-    time_to_take_picture = "2022:09:03,12:00:00,000"
-    sat_image = shoot.take_picture(time_to_take_picture)
     parser = argparse.ArgumentParser(description="Pass precomputed coastline")
     parser.add_argument("--computed_coastline", required=True)
     args = parser.parse_args()
-    sat_image = cloud_mask.mask_clouds(sat_image)
-    sat_coastline = compute_coastline.compute_coastline(sat_image)
 
-    points = [[462, 210], [469, 276], [525, 266], [516, 217]]
+    setup_camera.turn_on_camera()
+    # take picture
+    time_to_take_picture = "2022:09:03,12:00:00,000"
+    print("take picture")
+    sat_image = shoot.take_picture(time_to_take_picture)
+    height, width = sat_image.data.shape[:2]
+    # add mask attribute to the image
+    print("compute cloud mask of picture")
+    sat_image.mask = cloud_mask.cloud_mask(sat_image)
+    print("compute coastline of picture")
+    sat_coastline = compute_coastline.compute_coastline(sat_image)
+    # points = [[462, 210], [469, 276], [525, 266], [516, 217]]
+    points = [[100, 100], [300, 1000], [1500, 400]]
     # needs to be of shape (n, 1, 2) to be able to be acted on by homography
-    field_coords_px = np.array(points).reshape((len(points), 1, 2))
+    field_coords_px = np.array(points).reshape((len(points), 1, 2)) * 5
     # flip because y coord should be before x coord
     field_coords_px = np.flip(field_coords_px, axis=2)
 
+    print("load precomputed coastline")
     computed_coastline = precompute_coastline.load_precomputed_coastline(
         args.computed_coastline
     )
 
     # compute and apply homography to the original sat image
+    print("compute homography")
     homography = correlate_images.compute_affine_transform(
         computed_coastline, sat_coastline
     )
     # h, w = sat_image.data.shape[:2]
+    print("warp sat image to ground image")
     base_h, base_w = computed_coastline.data.shape[:2]
-    aligned_image = SatImage(
+    sat_image = SatImage(
         image=cv2.warpPerspective(
             sat_image.data, homography, (base_w, base_h), flags=cv2.INTER_NEAREST
         )
     )
 
+    print("crop image to field")
     # pass aligned image and coordinates to image recognition algorithm
     polygon = crop_field.Polygon(field_coords_px.reshape((len(points), 2)))
-    field_mask = crop_field.filter_polygon(aligned_image.data, polygon)
-    filtered_image = SatImage(image=aligned_image.data * field_mask[:, :, np.newaxis])
-    only_field = crop_field.crop_filtered_image(filtered_image)
+    field_mask = crop_field.filter_polygon(sat_image.data.shape, polygon).reshape(
+        (height, width, 1)
+    )
+    # print("get filtered sat image")
+    # filtered_sat_image = SatImage(image=sat_image.data * field_mask)
+    # print("only_field")
+    # only_field = crop_field.crop_filtered_image(filtered_sat_image)
+    only_field = crop_field.crop_image_to_field(sat_image.data, field_mask)
 
     # compute the Green index of the field
+    print("compute index")
     green_index = indeces.green_index(only_field)
 
     downlink.send_message_down(
         f"{green_index}: {make_decision.is_field_planted(green_index)}"
     )
+    fig, ax = plt.subplots(1, 2)
+    ax[0].imshow(sat_image)
+    ax[1].imshow(only_field)
+    plt.show()
 
 
 def presentation_images():

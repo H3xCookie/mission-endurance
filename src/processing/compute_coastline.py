@@ -6,9 +6,9 @@ from time_and_shoot.sat_image import SatImage
 
 
 def blue_index(bgr):
-    if bgr[0] != 0:
-        return (2 * int(bgr[0]) - int(bgr[1]) - int(bgr[2])) / bgr[0]
-    return -1
+    final_arr = 2 - (bgr[:, 1] + bgr[:, 2]) / bgr[:, 0]
+
+    return np.nan_to_num(final_arr, nan=-1, posinf=-1, neginf=-1)
 
 
 def water_index(bgr):
@@ -17,11 +17,11 @@ def water_index(bgr):
     return (g - r) / (g + r)
 
 
-def compute_coastline(sat_image: SatImage, csv=False) -> SatImage:
+def compute_coastline(sat_image: SatImage) -> SatImage:
     """
-    Computes the coastline of the image. If csv=False, returns a black and white image mask, i.e. black is land, white is sea. The dtype is bool
+    Computes the coastline of the image. Returns a black and white image mask, i.e. black is land, white is sea. The dtype is bool
     """
-    # TODO make it better
+    print("start compute")
     image = sat_image.data
     height, width, _ = image.shape
     # filter_size = int(0.01 * (width + height) / 2)
@@ -29,10 +29,15 @@ def compute_coastline(sat_image: SatImage, csv=False) -> SatImage:
     img_blur = image
 
     flat_data = img_blur.reshape((width * height, 3))
-    blue_values = np.array([blue_index(pixel) for pixel in flat_data])
-    # plt.hist(blue_values, bins=100)
+    # blue_values = np.array([blue_index(pixel) for pixel in flat_data])
+    blue_values = blue_index(flat_data)
+    # plt.hist(blue_values, bins=100, range=(-1, 1.5))
     # plt.show()
 
-    in_sea = blue_values > 0.6
-    border_initial_image = in_sea.reshape((height, width))
-    return SatImage(image=border_initial_image)
+    in_sea = blue_values > 0.47
+    in_sea = in_sea < 0.63
+    in_sea = in_sea.reshape((height, width))
+    plt.imshow(in_sea)
+    plt.show()
+    print("end compute")
+    return SatImage(image=in_sea, mask=sat_image.mask)

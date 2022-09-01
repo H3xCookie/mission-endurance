@@ -9,7 +9,7 @@ from preprocessing import cloud_mask
 def precompute_coastline():
     base_image = cv2.imread("./monkedir/stacked_rgb.tiff")
 
-    cloud_filter = cloud_mask.mask_clouds(SatImage(image=base_image))
+    cloud_filter = cloud_mask.cloud_mask(SatImage(image=base_image))
 
     final_image_data = compute_coastline.compute_coastline(SatImage(image=base_image))
     final_image_data = final_image_data.data.astype(np.uint8) * 255

@@ -1,5 +1,6 @@
-from processing.crop_field import MLModelInput
 import numpy as np
+
+from processing.crop_field import MLModelInput
 
 
 def ndvi_of_field(filtered_image: MLModelInput) -> float:

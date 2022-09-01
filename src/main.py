@@ -27,17 +27,35 @@ def sat_main():
     print("take picture")
     sat_image = shoot.take_picture(time_to_take_picture)
     height, width = sat_image.data.shape[:2]
+
+    # plt.imshow(np.flip(sat_image.data, axis=2))
+    # plt.show()
+    print("sat image h, w: ", height, width)
     # add mask attribute to the image
     print("compute cloud mask of picture")
-    sat_image.mask = cloud_mask.cloud_mask(sat_image)
+    # sat_image.mask = cloud_mask.cloud_mask(sat_image)
     print("compute coastline of picture")
     sat_coastline = compute_coastline.compute_coastline(sat_image)
-    # points = [[462, 210], [469, 276], [525, 266], [516, 217]]
-    points = [[100, 100], [300, 1000], [1500, 400]]
+    # x then y coordinate
+
+    good_fields = [
+        [[4335, 2563], [4452, 2691], [4553, 2608], [4444, 2475]],
+        [[3364, 2228], [3394, 2322], [3420, 2231]],
+        [[4631, 2274], [4658, 2188], [4625, 2185], [4586, 2239]],
+    ]
+    bad_fields = [
+        [[2958, 3493], [2964, 3525], [3072, 3471], [3078, 3419]],
+        [[3884, 3464], [3902, 3351], [3800, 3328]],
+        [[4212, 3482], [4215, 3545], [4312, 3488]],
+    ]
+    # good_fields = [
+    #     [[4135, 2130], [4239, 2140], [4321, 2059], [4224, 1931]],
+    #     [[3623, 1791], [3739, 1764], [3710, 1552], [3566, 1562]],
+    # ]
     # needs to be of shape (n, 1, 2) to be able to be acted on by homography
-    field_coords_px = np.array(points).reshape((len(points), 1, 2)) * 5
-    # flip because y coord should be before x coord
-    field_coords_px = np.flip(field_coords_px, axis=2)
+    # field_coords_px = np.array(points).reshape((len(points), 1, 2))
+    # # flip because y coord should be before x coord
+    # field_coords_px = np.flip(field_coords_px, axis=2)
 
     print("load precomputed coastline")
     computed_coastline = precompute_coastline.load_precomputed_coastline(
@@ -52,34 +70,70 @@ def sat_main():
     # h, w = sat_image.data.shape[:2]
     print("warp sat image to ground image")
     base_h, base_w = computed_coastline.data.shape[:2]
+    print("precomputed coastline h, w: ", base_h, base_w)
+    # plt.imshow(sat_image.data)
+    # plt.show()
     sat_image = SatImage(
         image=cv2.warpPerspective(
-            sat_image.data, homography, (base_w, base_h), flags=cv2.INTER_NEAREST
+            sat_image.data, homography, (base_h, base_w), flags=cv2.INTER_NEAREST
         )
     )
+    fig, ax = plt.subplots(2, 3)
+    for index, points in enumerate(good_fields):
+        # pass aligned image and coordinates to image recognition algorithm
+        poly_points = np.flip(np.array(points).reshape((len(points), 2)), axis=1)
+        print(poly_points)
+        if input("continue?") != "y":
+            break
+        polygon = crop_field.Polygon(poly_points)
+        print("make field mask")
+        field_mask = crop_field.filter_polygon(sat_image.data.shape, polygon).reshape(
+            (base_h, base_w, 1)
+        )
+        # print("get filtered sat image")
+        # filtered_sat_image = SatImage(image=sat_image.data * field_mask)
+        # print("only_field")
+        # only_field = crop_field.crop_filtered_image(filtered_sat_image)
+        print("crop image to field")
+        only_field = crop_field.crop_image_to_field(sat_image.data, field_mask)
 
-    print("crop image to field")
-    # pass aligned image and coordinates to image recognition algorithm
-    polygon = crop_field.Polygon(field_coords_px.reshape((len(points), 2)))
-    field_mask = crop_field.filter_polygon(sat_image.data.shape, polygon).reshape(
-        (height, width, 1)
-    )
-    # print("get filtered sat image")
-    # filtered_sat_image = SatImage(image=sat_image.data * field_mask)
-    # print("only_field")
-    # only_field = crop_field.crop_filtered_image(filtered_sat_image)
-    only_field = crop_field.crop_image_to_field(sat_image.data, field_mask)
+        # compute the Green index of the field
+        print("compute index")
+        green_index = indeces.green_index(only_field)
 
-    # compute the Green index of the field
-    print("compute index")
-    green_index = indeces.green_index(only_field)
+        downlink.send_message_down(
+            f"{green_index}: {make_decision.is_field_planted(green_index)}"
+        )
+        ax[0][index].imshow(only_field.data)
+    for index, points in enumerate(bad_fields):
+        # pass aligned image and coordinates to image recognition algorithm
+        poly_points = np.flip(np.array(points).reshape((len(points), 2)), axis=1)
+        print(poly_points)
+        if input("continue?") != "y":
+            break
+        polygon = crop_field.Polygon(poly_points)
+        print("make field mask")
+        field_mask = crop_field.filter_polygon(sat_image.data.shape, polygon).reshape(
+            (base_h, base_w, 1)
+        )
+        # print("get filtered sat image")
+        # filtered_sat_image = SatImage(image=sat_image.data * field_mask)
+        # print("only_field")
+        # only_field = crop_field.crop_filtered_image(filtered_sat_image)
+        print("crop image to field")
+        only_field = crop_field.crop_image_to_field(sat_image.data, field_mask)
 
-    downlink.send_message_down(
-        f"{green_index}: {make_decision.is_field_planted(green_index)}"
-    )
-    fig, ax = plt.subplots(1, 2)
-    ax[0].imshow(sat_image)
-    ax[1].imshow(only_field)
+        # compute the Green index of the field
+        print("compute index")
+        green_index = indeces.green_index(only_field)
+
+        downlink.send_message_down(
+            f"{green_index}: {make_decision.is_field_planted(green_index)}"
+        )
+        ax[1][index].imshow(only_field.data)
+    # fig, ax = plt.subplots(1, 2)
+    # ax[0].imshow(sat_image.data)
+    # ax[1].imshow(only_field.data)
     plt.show()
 
 

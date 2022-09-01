@@ -29,10 +29,11 @@ def filter_polygon(begin_array_shape, polygon: Polygon) -> np.ndarray:
             np.arange(begin_array_shape[0]),
             np.arange(begin_array_shape[1]),
             indexing="ij",
-        )
+        ),
+        dtype=np.uint16,
     )
     coords = np.moveaxis(coords, 0, 2)
-    final_arr = np.ones_like(coords[:, :, 0], dtype=bool)
+    final_arr = np.ones(coords.shape[:2], dtype=bool)
 
     for i in range(n):
         i1 = (i + 1) % n
@@ -40,13 +41,13 @@ def filter_polygon(begin_array_shape, polygon: Polygon) -> np.ndarray:
         # rotation counter-clockwise by 90 degrees
         normal_vec = np.zeros((2,))
         normal_vec[0], normal_vec[1] = -r[1], r[0]
-        final_arr = final_arr & (np.dot(coords - points[i], normal_vec) > 0)
+        final_arr &= np.dot(coords - points[i], normal_vec) > 0
 
     return final_arr
 
 
 def crop_filtered_image(filtered_image: SatImage) -> MLModelInput:
-    data = filtered_image.datadata
+    data = filtered_image.data
     nonzero_y, nonzero_x = np.nonzero(data)[:2]
     min_x, max_x = (
         np.min(nonzero_x),
@@ -74,4 +75,5 @@ def crop_image_to_field(
         np.min(nonzero_y),
         np.max(nonzero_y),
     )
-    return MLModelInput(data=sat_image_data[min_y:max_y, min_x:max_x, :])
+    print("sat image shape: ", sat_image_data.shape)
+    return MLModelInput(data=(sat_image_data * field_mask)[min_y:max_y, min_x:max_x, :])

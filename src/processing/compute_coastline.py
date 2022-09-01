@@ -37,7 +37,7 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
     in_sea = blue_values > 0.47
     in_sea = in_sea < 0.63
     in_sea = in_sea.reshape((height, width))
-    plt.imshow(in_sea)
-    plt.show()
+    # plt.imshow(in_sea)
+    # plt.show()
     print("end compute")
     return SatImage(image=in_sea, mask=sat_image.mask)

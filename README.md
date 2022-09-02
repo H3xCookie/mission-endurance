@@ -21,27 +21,32 @@ First we pick a field next to a coastline, for easier correlation of coordinate 
 
 ### `scripts`
 
-Contains scripts useful for downloading sentinel data and turning it into a tiff. `scripts/rgb_from_tiff.py` takes in as an argument the location of the `.SAFE` folder and creates a stacked rgb image inside it. Since we are running the scripst on the ground only, they use a dedicated conda environment `geo-env/`. 
+Contains scripts useful for downloading sentinel data and turning it into a tiff. `scripts/rgb_from_tiff.py` takes in as an argument the location of the `.SAFE` folder and creates a stacked rgb image inside it. Since we are running the scripst on the ground only, they use a dedicated conda environment `geo-env/`. The `rgb_from_safe.py` script takes as an input the location of a `.SAFE` folder, as unzipped from the Sentinel website, and produces a .tiff image immediately inside the `.SAFE` folder. Then the `src/preprocessing/precompute_coastline.py` can take it as an input to compute its coastline, and save it in whichever representation is more efficient (keypoints, image, etc.).
 
 ### `main.py` 
 
-Recieves the `--computed_coastline` .tiff image as input and runs the main function of the satellite. It runs inside the `sat-env` virtual environment, as defined by `libs.txt`.
+Recieves the `--computed_coastline` .tiff image as input and runs the main function of the satellite. It runs inside the `sat-env` virtual environment, as defined by `libs.txt`. It's logic is as follows: 
+1. Receive the coordinates of the field in pixels on the image on the ground
+2. Filter the clouds and throw away the image if target field is covered 
+3. Computes the transformation between the Platform-1 and the Sentinel images
+4. Crop only the field from the satellite photo.
+5. Compute a "greenness" index, based on which we decide whether the field is planted or not.
 
 ### `time_and_shoot`
 
-Recieves the time at which is should shoot the image, takes a picture and saves it. It also provides the `SatImage` class, which wraps all other images in the code. 
+Recieves the time at which is should shoot the image, waits unitl the time comes and takes a picture. It also provides the `SatImage` class, which wraps all other images in the code. 
 
 ### `preprocessing`
 
-Removes cloud cover(TODO implement!) and computes/loads the coastline image. At the moment it only saves it as a boolean .tiff, TODO improve.
+Removes cloud cover and loads the coastline image. At the moment it only saves the coastline as a boolean .tiff, TODO improve.
 
 ### `processing`
 
-Computes the coastline as an identifiable feature, correlates it with features of the precomputed coastline which is already on the sat and determines the homography between the sat photo and the one on the ground. It performs this homography to get an aligned image, whose features coincide with the ones on the picture on the ground. Crops a polygon corresponding to the field out of the satellite picture, in order to easily pass it around.
+Computes the coastline as an identifiable feature, correlates it with features of the precomputed coastline which is already on the sat and determines the homography between the sat photo and the one on the ground. It performs this homography on the Platform-1 image to get an aligned image, whose features coincide with the ones on the picture on the ground. Crops a polygon corresponding to the field out of the satellite picture, in order to easily pass it around to the decision making module.
 
 ### `image_analysis`
 
-Analyses the filtered image (where all the points outside the field are blackened). It tries to determine whether something is on the field. Provides different indeces in which higher is more greenery.
+Analyses the filtered image (where all the points outside the field are blackened). It tries to determine whether something is planted on the field. Provides a "greenness" index based on the bands of the image, equal to $I = \frac{RED - GREEN}{GREEN - BLUE}$. The higher the index, the higher the chance a field is planted.
 
 ### `communications`
 

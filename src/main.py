@@ -21,6 +21,7 @@ def sat_main():
     parser.add_argument("--computed_coastline", required=True)
     args = parser.parse_args()
 
+    # TODO Setup camera for real satellite
     # setup_camera.turn_on_camera()
     # take picture
     time_to_take_picture = "2022:09:03,12:00:00,000"
@@ -95,5 +96,4 @@ def sat_main():
 
 
 if __name__ == "__main__":
-    # precompute_coastline.precompute_coastline()
     sat_main()

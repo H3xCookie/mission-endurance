@@ -1,3 +1,5 @@
 def is_field_planted(green_index):
-    # TODO create better decision making algorithm
-    return green_index > 0.6
+    """
+    returns True if field is planted, False if not
+    """
+    return green_index > 2

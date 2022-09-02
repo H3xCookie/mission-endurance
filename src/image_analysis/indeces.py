@@ -1,5 +1,4 @@
 import numpy as np
-
 from processing.crop_field import MLModelInput
 
 
@@ -47,4 +46,4 @@ def green_index(filtered_image: MLModelInput) -> float:
     print(average_color)
     b, g, r = average_color
 
-    return g / (b + r)
+    return (r - g) / (g - b)

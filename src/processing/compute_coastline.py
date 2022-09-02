@@ -1,7 +1,6 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-
 from time_and_shoot.sat_image import SatImage
 
 
@@ -21,7 +20,6 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
     """
     Computes the coastline of the image. Returns a black and white image mask, i.e. black is land, white is sea. The dtype is bool
     """
-    print("start compute")
     image = sat_image.data
     height, width, _ = image.shape
     # filter_size = int(0.01 * (width + height) / 2)
@@ -39,5 +37,4 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
     in_sea = in_sea.reshape((height, width))
     # plt.imshow(in_sea)
     # plt.show()
-    print("end compute")
     return SatImage(image=in_sea, mask=sat_image.mask)

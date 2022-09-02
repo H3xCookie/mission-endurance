@@ -19,3 +19,7 @@ def precompute_coastline():
 
 def load_precomputed_coastline(filename) -> SatImage:
     return SatImage(image=cv2.cvtColor(cv2.imread(filename) * 255, cv2.COLOR_BGR2GRAY))
+
+
+if __name__ == "__main__":
+    precompute_coastline()

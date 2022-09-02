@@ -74,6 +74,7 @@ def sat_main():
     fig, ax = plt.subplots(2, 3)
     for dataset_index, dataset in enumerate([good_fields, bad_fields]):
         for index, points in enumerate(dataset):
+            print(points)
             # pass aligned image and coordinates to image recognition algorithm
             poly_points = np.flip(np.array(points).reshape((len(points), 2)), axis=1)
             polygon = crop_field.Polygon(poly_points)

@@ -23,14 +23,11 @@ def sat_main():
 
     # TODO Setup camera for real satellite
     # setup_camera.turn_on_camera()
-    # take picture
     time_to_take_picture = "2022:09:03,12:00:00,000"
     print("take picture")
     sat_image = shoot.take_picture(time_to_take_picture)
     height, width = sat_image.data.shape[:2]
 
-    # plt.imshow(np.flip(sat_image.data, axis=2))
-    # plt.show()
     print("sat image h, w: ", height, width)
     # add mask attribute to the image
     print("compute cloud mask of picture")
@@ -88,7 +85,7 @@ def sat_main():
 
             is_planted = make_decision.is_field_planted(green_index)
             downlink.send_message_down(f"{green_index}: {is_planted}")
-            ax[dataset_index][index].imshow(only_field.data)
+            ax[dataset_index][index].imshow(np.flip(only_field.data, axis=2))
             ax[dataset_index][index].title.set_text(
                 f"green coeff {green_index: .2f}: {is_planted}"
             )

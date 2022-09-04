@@ -92,6 +92,6 @@ def sat_main():
 
 
 if __name__ == "__main__":
-    # sat_main()
-    print("main of main")
-    precompute_coastline.precompute_coastline_keypoints()
+    sat_main()
+    # print("main of main")
+    # precompute_coastline.precompute_coastline_keypoints()

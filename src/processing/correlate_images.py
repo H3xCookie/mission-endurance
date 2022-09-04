@@ -28,32 +28,39 @@ class Keypoints:
                         cv2.KeyPoint(
                             x=hash_keypoint[0][0],
                             y=hash_keypoint[0][1],
-                            _size=hash_keypoint[1],
-                            _angle=hash_keypoint[2],
-                            _response=hash_keypoint[3],
-                            _octave=hash_keypoint[4],
-                            _class_id=hash_keypoint[5],
+                            size=hash_keypoint[1],
+                            angle=hash_keypoint[2],
+                            response=hash_keypoint[3],
+                            octave=hash_keypoint[4],
+                            class_id=hash_keypoint[5],
                         )
-                        for hash_keypoint in hash_object
+                        for hash_keypoint in hash_object[0]
                     ]
                 )
-                self.desc = tuple([hash_keypoint[6] for hash_keypoint in hash_object])
-                self.shape = hash_object[0][7]
+                self.desc = np.array(
+                    [hash_keypoint[6] for hash_keypoint in hash_object[0]]
+                )
+                self.shape = hash_object[1]
 
     def hashable(self):
-        return [
-            (
-                keypoint.pt,
-                keypoint.size,
-                keypoint.angle,
-                keypoint.response,
-                keypoint.octave,
-                keypoint.class_id,
-                description,
-                self.shape,
-            )
-            for keypoint, description in zip(self.kpts, self.desc)
-        ]
+        """
+        returns hash_object
+        """
+        return (
+            [
+                (
+                    keypoint.pt,
+                    keypoint.size,
+                    keypoint.angle,
+                    keypoint.response,
+                    keypoint.octave,
+                    keypoint.class_id,
+                    description,
+                )
+                for keypoint, description in zip(self.kpts, self.desc)
+            ],
+            self.shape,
+        )
 
 
 def compute_affine_transform(image_from_sat: SatImage, ground_image: SatImage):
@@ -113,6 +120,7 @@ def compute_transform_from_keypoints(
     # match the features
     kpsA, descA = sat_keypoints.kpts, sat_keypoints.desc
     kpsB, descB = ground_keypoints.kpts, ground_keypoints.desc
+    print(type(descA), type(descB))
     matcher = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
     matches = matcher.match(descA, descB, None)
 
@@ -147,5 +155,4 @@ def get_keypoints(coastline: SatImage) -> Keypoints:
     max_features = 500
     orb = cv2.ORB_create(max_features)
     (kpsA, descsA) = orb.detectAndCompute(coastline_data, None)
-    print(type(descsA))
     return Keypoints(shape=coastline_data.shape, kpts=kpsA, desc=descsA)

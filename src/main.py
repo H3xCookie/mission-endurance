@@ -82,7 +82,7 @@ def sat_main():
             green_index = indeces.green_index(only_field)
 
             is_planted = make_decision.is_field_planted(green_index)
-            downlink.send_message_down(f"{green_index}: {is_planted}")
+            # downlink.send_message_down(f"{green_index}: {is_planted}")
             ax[dataset_index][index].imshow(np.flip(only_field.data, axis=2))
             ax[dataset_index][index].title.set_text(
                 f"green coeff {green_index: .2f}: {is_planted}"

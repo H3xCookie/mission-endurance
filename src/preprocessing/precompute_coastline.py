@@ -21,7 +21,7 @@ def precompute_coastline():
 
 def precompute_coastline_keypoints():
     print("precompute Keypoints")
-    base_image = cv2.imread("./monkedir/stacked_rgb.tiff")
+    base_image = cv2.imread("./monkedir/ground_image_1_rgb.tiff")
 
     # TODO use the cloud mask
     # cloud_filter = cloud_mask.cloud_mask(SatImage(image=base_image))

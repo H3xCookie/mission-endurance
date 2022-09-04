@@ -42,4 +42,4 @@ def take_picture(utc_time_for_picture) -> SatImage:
     # )[0]
     # return take_picture_from_file(picture_filename)
 
-    return take_picture_from_file("./monkedir/offset_stacked_rgb.tiff")
+    return take_picture_from_file("./monkedir/sat_image_1_rgb.tiff")

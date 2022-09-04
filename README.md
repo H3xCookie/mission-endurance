@@ -21,7 +21,13 @@ First we pick a field next to a coastline, for easier correlation of coordinate 
 
 ### `scripts`
 
-Contains scripts useful for downloading sentinel data and turning it into a tiff. `scripts/rgb_from_tiff.py` takes in as an argument the location of the `.SAFE` folder and creates a stacked rgb image inside it. Since we are running the scripst on the ground only, they use a dedicated conda environment `geo-env/`. The `rgb_from_safe.py` script takes as an input the location of a `.SAFE` folder, as unzipped from the Sentinel website, and produces a .tiff image immediately inside the `.SAFE` folder. Then the `src/preprocessing/precompute_coastline.py` can take it as an input to compute its coastline, and save it in whichever representation is more efficient (keypoints, image, etc.).
+#### Running scripts
+
+The `zip_all_sat_files.sh` script zips all the files in `src/` and the pickled `.pkl` file containing the precomputed keypoints, and creates a single archive which is to be used on the satellite. The `run.sh` script is the only command that needs to be run on the satellite, which unzips that same archive, and calls the `main.py` file.
+
+#### Utility scripts
+
+Contains scripts useful for downloading sentinel data and turning it into a tiff. Since we are running the scripts on the ground only, they use a dedicated conda environment `geo-env/`. The `rgb_from_safe.py` script takes as an input the location of a `.SAFE` folder, as unzipped from the Sentinel website, and produces a .tiff image immediately inside the `.SAFE` folder. 
 
 ### `main.py` 
 

@@ -1,16 +1,24 @@
+# MISSION-ENDURANCE
+The ENDURANCE Cubesat mission is a joint project between three parties namely IBM, RedHat and ENDUROSAT who aim to democratizing access to space and make space accessible to everyone on this planet. With passion to inspire the next generation of future space explorers and leaders, the ENDURANCE mission gives students worldwide an opportunity to control a real spacecraft by sending their own developed code to control a 6U Cubesat in space. With 31 MP payload camera, Linux based Quad-core computer and many sensors installed within the satellite, students can have hand-on experience on how to develop and perform Edge Computing in space.
 
-# mission-endurance
-Some text
+We, Sky-Lens (Endurance Team 1), want to use this opportunuty to demonstrate on how this ENDURANCE mission works and create an example project/guideline on how to deveop codes to run in space. Our main mission of this program is to take a picture at one specific area that has been pre-selected from ground mission control and run image processing codes to geolocate agricultural land in the taken picture and analyze whether the land has been cultivated or not. 
 
 ## Table of contents
 
-1. [Program description](#program-description)
-2. [Software modules](#software-modules)
-    1. [`time_and_shoot`](#time_and_shoot)
-    2. [`preprocessing`](#preprocessing)
-    3. [`processing`](#processing)
-    4. [`image_analysis`](#image_analysis)
-    5. [`communications`](#communications)
+- [MISSION-ENDURANCE](#mission-endurance)
+  - [Table of contents](#table-of-contents)
+  - [Program description](#program-description)
+  - [Example usage](#example-usage)
+  - [Software modules](#software-modules)
+    - [`scripts`](#scripts)
+    - [`main.py`](#mainpy)
+    - [`time_and_shoot`](#time_and_shoot)
+    - [`preprocessing`](#preprocessing)
+    - [`processing`](#processing)
+    - [`image_analysis`](#image_analysis)
+    - [`communications`](#communications)
+  - [Library Environment](#library-environment)
+  - [PLATFORM-1 Specification](#platform-1-specification)
 
 ## Program description
 
@@ -57,4 +65,20 @@ Analyses the filtered image (where all the points outside the field are blackene
 
 ### `communications`
 
-An interface to the downlinking of the satellite. TODO implement!!!
+An interface to the downlinking of the satellite. Create downlink file in /work/transfer directory of the payload computer. When the satellite perfrom the data downlink mission, OBC will automatically transfer file from /work/transfer directory to ground station.
+
+## Library Environment
+
+Library environment of pyaload computer in PLATFORM-1 can be found in "lib.txt" on [our github](https://github.com/vasilNnikolov/mission-endurance/blob/plat-1-running/libs.txt)
+
+## PLATFORM-1 Specification
+
+1. SSO ~530 km
+2. 31 MP camera (6464 H x 4852 V)
+3. 30 m resolution picture
+4. 3-axis stabilizing, Nadir pointing when taking a photo (point toward center of the Earth)
+5. Pointing accuracy up to 0.2 degree
+6. 50 kB uplink and downlink data per satellite pass
+
+
+

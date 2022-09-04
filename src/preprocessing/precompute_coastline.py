@@ -29,7 +29,7 @@ def precompute_coastline_keypoints():
     final_image_data = compute_coastline.compute_coastline(SatImage(image=base_image))
     ground_keypoints = correlate_images.get_keypoints(final_image_data)
     with open("./monkedir/precomputed_keypoingts.pkl", "wb") as file:
-        pickle.dump(ground_keypoints, file)
+        pickle.dump(ground_keypoints.hashable(), file)
     print("Keypoints are saved in ./monkedir/precomputed_keypoingts.pkl")
 
 
@@ -39,6 +39,6 @@ def load_precomputed_coastline(filename) -> SatImage:
 
 def load_precomputed_keypoints(filename) -> Keypoints:
     with open(filename, "rb") as file:
-        ground_keypoints = pickle.load(file)
+        ground_keypoints = Keypoints(from_hash=True, hash_object=pickle.load(file))
     print(f"loaded ground image Keypoints with shape {ground_keypoints.shape}")
     return ground_keypoints

@@ -3,14 +3,61 @@ import matplotlib.pyplot as plt
 import numpy as np
 from time_and_shoot.sat_image import SatImage
 
+
 class Keypoints:
-    def __init__(self, shape, kpts, desc):
-        self.shape = shape
-        self.kpts = kpts
-        self.desc = desc
+    def __init__(self, from_hash=False, **kwargs):
+        """
+        Pass either shape, kpts and desc from orb.detectAndCompute, or with from_hash=True, the hashed object
+        """
+        if not from_hash:
+            attributes = ["shape", "kpts", "desc"]
+            if not all(kw in kwargs for kw in attributes):
+                print("pass shape, kpts and desk as named arguments to Keypoints")
+                exit(1)
+            else:
+                self.shape, self.kpts, self.desc = [kwargs[at] for at in attributes]
+        else:
+            if not "hash_object" in kwargs:
+                print("pass shape, kpts and desk as named arguments to Keypoints")
+                exit(1)
+            else:
+                hash_object = kwargs["hash_object"]
+
+                self.kpts = tuple(
+                    [
+                        cv2.KeyPoint(
+                            x=hash_keypoint[0][0],
+                            y=hash_keypoint[0][1],
+                            _size=hash_keypoint[1],
+                            _angle=hash_keypoint[2],
+                            _response=hash_keypoint[3],
+                            _octave=hash_keypoint[4],
+                            _class_id=hash_keypoint[5],
+                        )
+                        for hash_keypoint in hash_object
+                    ]
+                )
+                self.desc = tuple([hash_keypoint[6] for hash_keypoint in hash_object])
+                self.shape = hash_object[0][7]
+
+    def hashable(self):
+        return [
+            (
+                keypoint.pt,
+                keypoint.size,
+                keypoint.angle,
+                keypoint.response,
+                keypoint.octave,
+                keypoint.class_id,
+                description,
+                self.shape,
+            )
+            for keypoint, description in zip(self.kpts, self.desc)
+        ]
+
 
 def compute_affine_transform(image_from_sat: SatImage, ground_image: SatImage):
-    """ 
+    """
     computes and returns the affine transformation which maps parts of image_from to the corresponding parts on image_to
     images should be opened by cv2.imread and have one channel only, so shape (height, width)
     """
@@ -56,8 +103,10 @@ def compute_affine_transform(image_from_sat: SatImage, ground_image: SatImage):
     return homography
 
 
-def compute_transform_from_keypoints(sat_keypoints: Keypoints, ground_keypoints: Keypoints):
-    """ 
+def compute_transform_from_keypoints(
+    sat_keypoints: Keypoints, ground_keypoints: Keypoints
+):
+    """
     computes and returns the affine transformation which maps parts of image_from to the corresponding parts on image_to
     images should be opened by cv2.imread and have one channel only, so shape (height, width)
     """
@@ -88,9 +137,9 @@ def compute_transform_from_keypoints(sat_keypoints: Keypoints, ground_keypoints:
         p1[i, :] = kpsA[matches[i].queryIdx].pt
         p2[i, :] = kpsB[matches[i].trainIdx].pt
 
-    homography, mask = cv2.findHomography(p1, p2, cv2.RANSAC)
+    homography, _ = cv2.findHomography(p1, p2, cv2.RANSAC)
     return homography
-    
+
 
 def get_keypoints(coastline: SatImage) -> Keypoints:
     coastline_data = coastline.data.astype(np.uint8) * 255
@@ -98,4 +147,5 @@ def get_keypoints(coastline: SatImage) -> Keypoints:
     max_features = 500
     orb = cv2.ORB_create(max_features)
     (kpsA, descsA) = orb.detectAndCompute(coastline_data, None)
-    return Keypoints(coastline_data.shape, kpsA, descsA) 
+    print(type(descsA))
+    return Keypoints(shape=coastline_data.shape, kpts=kpsA, desc=descsA)

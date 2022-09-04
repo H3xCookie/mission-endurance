@@ -49,7 +49,10 @@ def sat_main():
     ]
 
     print("load precomputed coastline")
-    computed_coastline = precompute_coastline.load_precomputed_coastline(
+    # computed_coastline = precompute_coastline.load_precomputed_coastline(
+    #     args.computed_coastline
+    # )
+    coastline_keypoints = precompute_coastline.load_precomputed_coastline(
         args.computed_coastline
     )
 

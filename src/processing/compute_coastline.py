@@ -1,5 +1,4 @@
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 from time_and_shoot.sat_image import SatImage
 
@@ -39,3 +38,4 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
     # plt.imshow(in_sea)
     # plt.show()
     return SatImage(image=in_sea, mask=sat_image.mask)
+

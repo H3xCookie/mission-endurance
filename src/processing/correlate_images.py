@@ -5,7 +5,7 @@ from time_and_shoot.sat_image import SatImage
 
 
 def compute_affine_transform(image_from_sat: SatImage, ground_image: SatImage):
-    """
+    """ 
     computes and returns the affine transformation which maps parts of image_from to the corresponding parts on image_to
     images should be opened by cv2.imread and have one channel only, so shape (height, width)
     """
@@ -49,3 +49,11 @@ def compute_affine_transform(image_from_sat: SatImage, ground_image: SatImage):
 
     homography, mask = cv2.findHomography(p1, p2, cv2.RANSAC)
     return homography
+
+def get_ksts_decriptors(coastline: SatImage):
+    coastline_data = coastline.data.astype(np.uint8) * 255
+
+    max_features = 500
+    orb = cv2.ORB_create(max_features)
+    (kpsA, descsA) = orb.detectAndCompute(coastline_data, None)
+    return (kpsA, descsA)

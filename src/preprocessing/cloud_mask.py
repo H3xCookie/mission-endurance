@@ -26,6 +26,4 @@ def cloud_mask(image: SatImage) -> np.ndarray:
     print(type(res))
     print(res.dtype)
     print(res.shape)
-    # plt.imshow(res.astype(np.uint8) * 255)
-    # plt.show()
     return res

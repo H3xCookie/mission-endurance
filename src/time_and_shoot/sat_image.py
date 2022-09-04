@@ -3,16 +3,16 @@ import numpy as np
 
 
 class SatImage:
-    def __init__(self, **kwargs):
+    def __init__(self, filename=None, image=None, **kwargs):
         """
         pass either filename= or an image= read by cv2, so an np.ndarray
         """
-        if "image" not in kwargs and "filename" not in kwargs:
+        if filename is None and image is None:
             print("specify either image=cv2.imread or filename=<fullpath>.tif")
-        if "filename" in kwargs:
-            self.data: np.ndarray = cv2.imread(kwargs["filename"])
-        elif "image" in kwargs:
-            self.data: np.ndarray = kwargs["image"]
+        if not (filename is None):
+            self.data: np.ndarray = cv2.imread(filename)
+        elif not (image is None):
+            self.data: np.ndarray = image
         if "cloud_mask" in kwargs:
             self.mask = kwargs["cloud_mask"]
         else:

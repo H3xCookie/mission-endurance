@@ -23,7 +23,6 @@ def cloud_mask(image: SatImage) -> np.ndarray:
     res = cv2.bitwise_and(image.data, image.data, mask=thresh)
     res = res > 0
     res = res.astype(bool)
-    print(type(res))
-    print(res.dtype)
-    print(res.shape)
+    print("computed cloud mask")
     return res
+

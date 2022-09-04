@@ -8,6 +8,7 @@ from communications import downlink
 from image_analysis import indeces, make_decision
 from preprocessing import cloud_mask, precompute_coastline
 from processing import compute_coastline, correlate_images, crop_field
+from processing.correlate_images import Keypoints
 from time_and_shoot import setup_camera, shoot
 from time_and_shoot.sat_image import SatImage
 
@@ -18,10 +19,10 @@ def sat_main():
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
     parser = argparse.ArgumentParser(description="Pass precomputed coastline")
+
     parser.add_argument("--computed_coastline", required=True)
     args = parser.parse_args()
 
-    # TODO Setup camera for real satellite
     setup_camera.turn_on_camera()
     time_to_take_picture = "2022:09:03,12:00:00,000"
     print("take picture")
@@ -32,37 +33,34 @@ def sat_main():
     # add mask attribute to the image
     print("compute cloud mask of picture")
     # sat_image.mask = cloud_mask.cloud_mask(sat_image)
-    print("compute coastline of picture")
+    print("compute coastline and Keypoints of picture")
     sat_coastline = compute_coastline.compute_coastline(sat_image)
-
+    sat_coastline_keypoints = correlate_images.get_keypoints(sat_coastline)
     # x then y coordinate, need to flip them later so y is first, then x
     good_fields = [
         [[4335, 2563], [4452, 2691], [4553, 2608], [4444, 2475]],
         [[3364, 2228], [3394, 2322], [3420, 2231]],
         [[4631, 2274], [4658, 2188], [4625, 2185], [4586, 2239]],
     ]
-
     bad_fields = [
         [[2958, 3493], [2964, 3525], [3072, 3471], [3078, 3419]],
         [[3884, 3464], [3902, 3351], [3800, 3328]],
         [[4212, 3482], [4215, 3545], [4312, 3488]],
     ]
 
-    print("load precomputed coastline")
-    # computed_coastline = precompute_coastline.load_precomputed_coastline(
-    #     args.computed_coastline
-    # )
-    coastline_keypoints = precompute_coastline.load_precomputed_coastline(
+    print("load precomputed coastline Keypoints")
+    ground_keypoints = precompute_coastline.load_precomputed_keypoints(
         args.computed_coastline
     )
 
     # compute and apply homography to the original sat image
     print("compute homography")
-    homography = correlate_images.compute_affine_transform(
-        computed_coastline, sat_coastline
+    homography = correlate_images.compute_transform_from_keypoints(
+        sat_coastline_keypoints, ground_keypoints
     )
+
     print("warp sat image to ground image")
-    base_h, base_w = computed_coastline.data.shape[:2]
+    base_h, base_w = ground_keypoints.shape
     print("precomputed coastline h, w: ", base_h, base_w)
     sat_image = SatImage(
         image=cv2.warpPerspective(
@@ -94,4 +92,6 @@ def sat_main():
 
 
 if __name__ == "__main__":
-    sat_main()
+    # sat_main()
+    print("main of main")
+    precompute_coastline.precompute_coastline_keypoints()

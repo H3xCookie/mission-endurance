@@ -32,6 +32,7 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
     # plt.hist(blue_values, bins=100, range=(-1, 1.5))
     # plt.show()
 
+    # TODO automate picking the thresholds
     in_sea = blue_values > 0.47
     in_sea = in_sea < 0.63
     in_sea = in_sea.reshape((height, width))

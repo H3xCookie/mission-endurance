@@ -31,12 +31,12 @@ def take_picture(utc_time_for_picture) -> SatImage:
     returns: A `SatImage` class, which wraps around the tif produced by the satellite
     """
     # TODO test
-    # approx time it takes for the sat to take a photo
+    # # approx time it takes for the sat to take a photo
     # time_delay = 4
     # while utc_timestamp() < utc_time_for_picture - time_delay:
     #     sleep(0.5)
 
-    # subprocess.run(["./scripts/take_picture.sh"])
+    # subprocess.run(["./src/take_picture.sh"])
     # picture_filename = os.listdir(
     #     "/work/mission-endurance/monkedir/sat_captured_images/"
     # )[0]

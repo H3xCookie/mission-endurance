@@ -22,7 +22,7 @@ def sat_main():
     args = parser.parse_args()
 
     # TODO Setup camera for real satellite
-    # setup_camera.turn_on_camera()
+    setup_camera.turn_on_camera()
     time_to_take_picture = "2022:09:03,12:00:00,000"
     print("take picture")
     sat_image = shoot.take_picture(time_to_take_picture)
@@ -58,12 +58,9 @@ def sat_main():
     homography = correlate_images.compute_affine_transform(
         computed_coastline, sat_coastline
     )
-    # h, w = sat_image.data.shape[:2]
     print("warp sat image to ground image")
     base_h, base_w = computed_coastline.data.shape[:2]
     print("precomputed coastline h, w: ", base_h, base_w)
-    # plt.imshow(sat_image.data)
-    # plt.show()
     sat_image = SatImage(
         image=cv2.warpPerspective(
             sat_image.data, homography, (base_h, base_w), flags=cv2.INTER_NEAREST
@@ -89,6 +86,7 @@ def sat_main():
             ax[dataset_index][index].title.set_text(
                 f"green coeff {green_index: .2f}: {is_planted}"
             )
+
     plt.show()
 
 

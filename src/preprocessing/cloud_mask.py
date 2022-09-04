@@ -18,6 +18,7 @@ def cloud_mask(image: SatImage) -> np.ndarray:
     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
     thresh = cv2.bitwise_not(thresh)
+    print(type(thresh))
     # TODO prly can return tresh
     res = cv2.bitwise_and(image.data, image.data, mask=thresh)
     res = res > 0

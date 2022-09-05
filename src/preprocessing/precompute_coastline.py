@@ -15,7 +15,7 @@ def precompute_coastline_keypoints():
 
     final_image_data = compute_coastline.compute_coastline(SatImage(image=base_image))
 
-    scale_factor = (10, 10)
+    scale_factor = (2, 2)
     ground_keypoints = correlate_images.get_keypoints(final_image_data, scale_factor)
     print("Keypoints: ", len(ground_keypoints.kpts))
     output_with_keypoints = cv2.cvtColor(
@@ -23,10 +23,11 @@ def precompute_coastline_keypoints():
     )
     for kp in ground_keypoints.kpts:
         x, y = kp.pt
+
         cv2.circle(
             output_with_keypoints,
             (int(x), int(y)),
-            5,
+            15,
             color=(255, 0, 0),
             thickness=-1,
         )

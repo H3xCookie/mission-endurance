@@ -13,6 +13,13 @@ from time_and_shoot import setup_camera, shoot
 from time_and_shoot.sat_image import SatImage
 
 
+def preview_ground_image():
+    gnd_image = cv2.imread("monkedir/ground_image_1_rgb.tiff")
+
+    plt.imshow(gnd_image[:, :, ::-1])
+    plt.show()
+
+
 def sat_main():
     """
     the main fn which runs on the satellite. fiedl coords must
@@ -40,12 +47,12 @@ def sat_main():
     )
     # x then y coordinate, need to flip them later so y is first, then x
     good_fields = [
-        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
-        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
+        [[2000, 1000], [2000, 1100], [2100, 1100], [2100, 1000]],
+        [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
     ]
     bad_fields = [
-        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
-        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
+        [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
+        [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
     ]
 
     print("load precomputed coastline Keypoints")
@@ -59,6 +66,7 @@ def sat_main():
         sat_coastline_keypoints,
         ground_keypoints,
     )
+    print(homography)
 
     print("warp sat image to ground image")
     base_h, base_w = ground_keypoints.shape
@@ -68,6 +76,11 @@ def sat_main():
             sat_image.data, homography, (base_h, base_w), flags=cv2.INTER_NEAREST
         )
     )
+    # fig, (ax1, ax2) = plt.subplots(1, 2)
+    # ax1.imshow(cv2.imread("monkedir/ground_image_1_rgb.tiff"))
+    # ax2.imshow(sat_image.data)
+    # plt.show()
+
     fig, ax = plt.subplots(2, 2)
     for dataset_index, dataset in enumerate([good_fields, bad_fields]):
         for index, points in enumerate(dataset):
@@ -93,6 +106,7 @@ def sat_main():
 
 
 if __name__ == "__main__":
-    sat_main()
+    # preview_ground_image()
+    # sat_main()
     # print("main of main")
-    # precompute_coastline.precompute_coastline_keypoints()
+    precompute_coastline.precompute_coastline_keypoints()

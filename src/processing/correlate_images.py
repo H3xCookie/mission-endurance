@@ -62,6 +62,18 @@ class Keypoints:
             self.shape,
         )
 
+    def scale_up(self, scale_up_factor):
+        new_kpts = []
+        for kp in self.kpts:
+            new_kp = kp
+            new_x = kp.pt[0] * scale_up_factor[1]
+            new_y = kp.pt[1] * scale_up_factor[0]
+            new_kp.pt = (int(new_x), int(new_y))
+            new_kpts.append(new_kp)
+
+        self.kpts = tuple(new_kpts)
+        return self
+
 
 def compute_transform_from_keypoints(
     sat_keypoints: Keypoints,
@@ -108,6 +120,9 @@ def compute_transform_from_keypoints(
 
 
 def get_keypoints(coastline: SatImage, scale_factor=(10, 10)) -> Keypoints:
+    """
+    first scales down the image height by scale_factor[0] and the width by scale_factor[1], computest the scaled down keypoints, scales them back up and returns them.
+    """
     coastline_data = coastline.data.astype(np.float32) * 255 / np.max(coastline.data)
     coastline_data = coastline_data.astype(np.uint8)
     height, width = coastline_data.shape[:2]
@@ -120,7 +135,7 @@ def get_keypoints(coastline: SatImage, scale_factor=(10, 10)) -> Keypoints:
 
     (kpsA, descsA) = orb.detectAndCompute(smaller_image, None)
 
-    return Keypoints(shape=new_shape, kpts=kpsA, desc=descsA)
+    return Keypoints(shape=new_shape, kpts=kpsA, desc=descsA).scale_up(scale_factor)
 
 
 def compute_affine_transform(image_from_sat: SatImage, ground_image: SatImage):

@@ -19,7 +19,7 @@ def sat_main():
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
     parser = argparse.ArgumentParser(description="Pass precomputed coastline")
-    parser.add_argument("--computed_coastline", required=True)
+    parser.add_argument("--ground_keypoints", required=True)
     args = parser.parse_args()
 
     print("take picture")
@@ -27,8 +27,6 @@ def sat_main():
     time_to_take_picture = "2022:09:03,12:00:00,000"
     sat_image = shoot.take_picture(time_to_take_picture)
     height, width = sat_image.data.shape[:2]
-    # plt.imshow(sat_image.data)
-    # plt.show()
 
     print("sat image h, w: ", height, width)
     # add mask attribute to the image
@@ -36,7 +34,10 @@ def sat_main():
     # sat_image.mask = cloud_mask.cloud_mask(sat_image)
     print("compute coastline and Keypoints of picture")
     sat_coastline = compute_coastline.compute_coastline(sat_image)
-    sat_coastline_keypoints = correlate_images.get_keypoints(sat_coastline)
+    scale_factor = (10, 10)
+    sat_coastline_keypoints = correlate_images.get_keypoints(
+        sat_coastline, scale_factor
+    )
     # x then y coordinate, need to flip them later so y is first, then x
     good_fields = [
         [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
@@ -49,7 +50,7 @@ def sat_main():
 
     print("load precomputed coastline Keypoints")
     ground_keypoints = precompute_coastline.load_precomputed_keypoints(
-        args.computed_coastline
+        args.ground_keypoints
     )
 
     # compute and apply homography to the original sat image

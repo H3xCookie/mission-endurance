@@ -23,8 +23,8 @@ def precompute_coastline_keypoints():
         x, y = kp.pt
         cv2.circle(
             output_with_keypoints,
-            (int(x * scale_factor[1]), int(y * scale_factor[0])),
-            20,
+            (int(x), int(y)),
+            5,
             color=(255, 0, 0),
             thickness=-1,
         )

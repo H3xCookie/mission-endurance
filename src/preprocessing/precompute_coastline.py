@@ -9,13 +9,12 @@ from time_and_shoot.sat_image import SatImage
 from preprocessing import cloud_mask
 
 
-def precompute_coastline_keypoints():
+def precompute_coastline_keypoints(scale_factor=(5, 5)):
     print("precompute Keypoints")
     base_image = cv2.imread("./monkedir/ground_image_1_rgb.tiff")
 
     final_image_data = compute_coastline.compute_coastline(SatImage(image=base_image))
 
-    scale_factor = (2, 2)
     ground_keypoints = correlate_images.get_keypoints(final_image_data, scale_factor)
     print("Keypoints: ", len(ground_keypoints.kpts))
     output_with_keypoints = cv2.cvtColor(

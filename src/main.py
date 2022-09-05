@@ -20,7 +20,7 @@ def preview_ground_image():
     plt.show()
 
 
-def sat_main():
+def sat_main(scale_factor=(5, 5)):
     """
     the main fn which runs on the satellite. fiedl coords must
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
@@ -41,7 +41,6 @@ def sat_main():
     # sat_image.mask = cloud_mask.cloud_mask(sat_image)
     print("compute coastline and Keypoints of picture")
     sat_coastline = compute_coastline.compute_coastline(sat_image)
-    scale_factor = (10, 10)
     sat_coastline_keypoints = correlate_images.get_keypoints(
         sat_coastline, scale_factor
     )
@@ -107,6 +106,7 @@ def sat_main():
 
 if __name__ == "__main__":
     # preview_ground_image()
-    # sat_main()
+    scale_factor = (5, 5)
+    precompute_coastline.precompute_coastline_keypoints(scale_factor)
+    sat_main(scale_factor)
     # print("main of main")
-    precompute_coastline.precompute_coastline_keypoints()

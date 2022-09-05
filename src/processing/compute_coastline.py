@@ -60,7 +60,7 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
     blue_values = np.clip(blue_values.astype(np.float16) * 254.0 / max_value, 0, 255)
     blue_values = blue_values.astype(np.uint8)
 
-    filter_size = max(5, int(int(0.008 * height) / 2) * 2 + 1)
+    filter_size = max(5, int(int(0.01 * height) / 2) * 2 + 1)
     print(filter_size)
     blueness_image = cv2.GaussianBlur(
         blue_values.reshape((height, width)),

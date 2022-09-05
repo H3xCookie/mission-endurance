@@ -13,13 +13,20 @@ from time_and_shoot import setup_camera, shoot
 from time_and_shoot.sat_image import SatImage
 
 
-def sat_main():
+def preview_ground_image():
+    gnd_image = cv2.imread("monkedir/ground_image_1_rgb.tiff")
+
+    plt.imshow(gnd_image[:, :, ::-1])
+    plt.show()
+
+
+def sat_main(scale_factor=(5, 5)):
     """
     the main fn which runs on the satellite. fiedl coords must
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
     parser = argparse.ArgumentParser(description="Pass precomputed coastline")
-    parser.add_argument("--computed_coastline", required=True)
+    parser.add_argument("--ground_keypoints", required=True)
     args = parser.parse_args()
 
     print("take picture")
@@ -27,8 +34,6 @@ def sat_main():
     time_to_take_picture = "2022:09:03,12:00:00,000"
     sat_image = shoot.take_picture(time_to_take_picture)
     height, width = sat_image.data.shape[:2]
-    # plt.imshow(sat_image.data)
-    # plt.show()
 
     print("sat image h, w: ", height, width)
     # add mask attribute to the image
@@ -36,20 +41,22 @@ def sat_main():
     # sat_image.mask = cloud_mask.cloud_mask(sat_image)
     print("compute coastline and Keypoints of picture")
     sat_coastline = compute_coastline.compute_coastline(sat_image)
-    sat_coastline_keypoints = correlate_images.get_keypoints(sat_coastline)
+    sat_coastline_keypoints = correlate_images.get_keypoints(
+        sat_coastline, scale_factor
+    )
     # x then y coordinate, need to flip them later so y is first, then x
     good_fields = [
-        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
-        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
+        [[2000, 1000], [2000, 1100], [2100, 1100], [2100, 1000]],
+        [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
     ]
     bad_fields = [
-        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
-        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
+        [[2000, 1000], [2000, 1100], [2100, 1100], [2100, 1000]],
+        [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
     ]
 
     print("load precomputed coastline Keypoints")
     ground_keypoints = precompute_coastline.load_precomputed_keypoints(
-        args.computed_coastline
+        args.ground_keypoints
     )
 
     # compute and apply homography to the original sat image
@@ -57,9 +64,8 @@ def sat_main():
     homography = correlate_images.compute_transform_from_keypoints(
         sat_coastline_keypoints,
         ground_keypoints,
-        sat_image,
-        SatImage(image=cv2.imread("monkedir/ground_image_1_rgb.tiff")),
     )
+    print(homography)
 
     print("warp sat image to ground image")
     base_h, base_w = ground_keypoints.shape
@@ -69,7 +75,9 @@ def sat_main():
             sat_image.data, homography, (base_h, base_w), flags=cv2.INTER_NEAREST
         )
     )
+
     fig, ax = plt.subplots(2, 2)
+    ground_image = SatImage(image=cv2.imread("monkedir/ground_image_1_rgb.tiff"))
     for dataset_index, dataset in enumerate([good_fields, bad_fields]):
         for index, points in enumerate(dataset):
             print(points)
@@ -78,7 +86,11 @@ def sat_main():
             polygon = crop_field.Polygon(poly_points)
 
             print("crop field")
-            only_field = crop_field.select_only_field(sat_image, polygon)
+            if dataset_index == 0:
+                only_field = crop_field.select_only_field(ground_image, polygon)
+            else:
+                only_field = crop_field.select_only_field(sat_image, polygon)
+
             # compute the Green index of the field
             print("compute index")
             green_index = indeces.green_index(only_field)
@@ -94,6 +106,8 @@ def sat_main():
 
 
 if __name__ == "__main__":
-    # sat_main()
+    # preview_ground_image()
+    scale_factor = (5, 5)
+    precompute_coastline.precompute_coastline_keypoints(scale_factor)
+    sat_main(scale_factor)
     # print("main of main")
-    precompute_coastline.precompute_coastline_keypoints()

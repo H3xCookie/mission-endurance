@@ -1,7 +1,6 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-
 from time_and_shoot.sat_image import SatImage
 
 
@@ -63,12 +62,26 @@ class Keypoints:
             self.shape,
         )
 
+    def scale_up(self, scale_up_factor):
+        new_kpts = []
+        for kp in self.kpts:
+            new_kp = kp
+            new_x = kp.pt[0] * scale_up_factor[1]
+            new_y = kp.pt[1] * scale_up_factor[0]
+            new_kp.pt = (new_x, new_y)
+            new_kpts.append(new_kp)
+
+        self.kpts = tuple(new_kpts)
+        self.shape = (
+            self.shape[0] * scale_up_factor[1],
+            self.shape[0] * scale_up_factor[1],
+        )
+        return self
+
 
 def compute_transform_from_keypoints(
     sat_keypoints: Keypoints,
     ground_keypoints: Keypoints,
-    sat_image: SatImage,
-    ground_image: SatImage,
 ):
     """
     computes and returns the affine transformation (homography) which maps the sat_keypoints to ground_keypoints.
@@ -77,25 +90,15 @@ def compute_transform_from_keypoints(
     print("matching keypoints")
     kpsA, descA = sat_keypoints.kpts, sat_keypoints.desc
     kpsB, descB = ground_keypoints.kpts, ground_keypoints.desc
-    matcher = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
+    matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
     matches = matcher.match(descA, descB, None)
 
     matches = sorted(matches, key=lambda x: x.distance)
-
     # keep only the top matches
     keep = int(len(matches) * 0.8)
     matches = matches[:keep]
     n_matches = len(matches)
     print(f"Number of matches: {n_matches}")
-    if True:
-        x = sat_image.data
-        cv2.drawKeypoints(sat_image.data, kpsA, x, color=(0, 0, 255))
-
-        # matchedVis = cv2.drawMatches(
-        #     ground_image.data, kpsA, sat_image.data, kpsB, matches[:100], None
-        # )
-        plt.imshow(x)
-        plt.show()
 
     p1 = np.zeros((n_matches, 2))
     p2 = np.zeros((n_matches, 2))
@@ -108,16 +111,29 @@ def compute_transform_from_keypoints(
     return homography
 
 
-def get_keypoints(coastline: SatImage) -> Keypoints:
-    coastline_data = coastline.data.astype(np.float32) * 255 / np.max(coastline.data)
+def get_keypoints(coastline: SatImage, scale_factor=(10, 10), binary=True) -> Keypoints:
+    """
+    first scales down the image height by scale_factor[0] and the width by scale_factor[1], computest the scaled down keypoints, scales them back up and returns them.
+    """
+    coastline_data = coastline.data
+    if binary:
+        coastline_data = (
+            coastline.data.astype(np.float32) * 255 / np.max(coastline.data)
+        )
     coastline_data = coastline_data.astype(np.uint8)
     height, width = coastline_data.shape[:2]
 
-    max_features = 300
+    # resize image to size where it should work
+    new_shape = (int(height / scale_factor[0]), int(width / scale_factor[1]))
+    smaller_image = cv2.resize(coastline_data, new_shape)
+    max_features = 400
+    # orb = cv2.ORB_create(max_features, scaleFactor=2, nlevels=3)
     orb = cv2.ORB_create(max_features)
+    # orb = cv2.SIFT_create()
 
-    (kpsA, descsA) = orb.detectAndCompute(coastline_data, None)
-    return Keypoints(shape=coastline_data.shape, kpts=kpsA, desc=descsA)
+    (kpsA, descsA) = orb.detectAndCompute(smaller_image, None)
+
+    return Keypoints(shape=new_shape, kpts=kpsA, desc=descsA).scale_up(scale_factor)
 
 
 def compute_affine_transform(image_from_sat: SatImage, ground_image: SatImage):

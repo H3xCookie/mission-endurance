@@ -15,24 +15,23 @@ from time_and_shoot.sat_image import SatImage
 
 def sat_main():
     """
-    the main fn which runs on the satellite. fiedl coords must
+    the main fn which runs on the satellite. field coords must
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
     parser = argparse.ArgumentParser(description="Pass precomputed coastline")
-
     parser.add_argument("--computed_coastline", required=True)
     args = parser.parse_args()
 
+    print("take picture")
     setup_camera.turn_on_camera()
     time_to_take_picture = "2022:09:03,12:00:00,000"
-    print("take picture")
     sat_image = shoot.take_picture(time_to_take_picture)
     height, width = sat_image.data.shape[:2]
 
     print("sat image h, w: ", height, width)
     # add mask attribute to the image
     print("compute cloud mask of picture")
-    # sat_image.mask = cloud_mask.cloud_mask(sat_image)
+    sat_image.mask = cloud_mask.cloud_mask(sat_image)
     print("compute coastline and Keypoints of picture")
     sat_coastline = compute_coastline.compute_coastline(sat_image)
     sat_coastline_keypoints = correlate_images.get_keypoints(sat_coastline)

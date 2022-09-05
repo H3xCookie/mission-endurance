@@ -25,4 +25,3 @@ def cloud_mask(image: SatImage) -> np.ndarray:
     res = res.astype(bool)
     print("computed cloud mask")
     return res
-

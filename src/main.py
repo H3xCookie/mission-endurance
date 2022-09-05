@@ -50,7 +50,7 @@ def sat_main(scale_factor=(5, 5)):
         [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
     ]
     bad_fields = [
-        [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
+        [[2000, 1000], [2000, 1100], [2100, 1100], [2100, 1000]],
         [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
     ]
 
@@ -81,6 +81,7 @@ def sat_main(scale_factor=(5, 5)):
     # plt.show()
 
     fig, ax = plt.subplots(2, 2)
+    ground_image = SatImage(image=cv2.imread("monkedir/ground_image_1_rgb.tiff"))
     for dataset_index, dataset in enumerate([good_fields, bad_fields]):
         for index, points in enumerate(dataset):
             print(points)
@@ -89,7 +90,11 @@ def sat_main(scale_factor=(5, 5)):
             polygon = crop_field.Polygon(poly_points)
 
             print("crop field")
-            only_field = crop_field.select_only_field(sat_image, polygon)
+            if dataset_index == 0:
+                only_field = crop_field.select_only_field(ground_image, polygon)
+            else:
+                only_field = crop_field.select_only_field(sat_image, polygon)
+
             # compute the Green index of the field
             print("compute index")
             green_index = indeces.green_index(only_field)

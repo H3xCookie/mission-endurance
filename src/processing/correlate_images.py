@@ -123,9 +123,9 @@ def get_keypoints(coastline: SatImage, scale_factor=(10, 10)) -> Keypoints:
     # resize image to size where it should work
     new_shape = (int(height / scale_factor[0]), int(width / scale_factor[1]))
     smaller_image = cv2.resize(coastline_data, new_shape)
-    max_features = 600
-    orb = cv2.ORB_create(max_features, scaleFactor=2, nlevels=3)
-    # orb = cv2.ORB_create(max_features)
+    max_features = 400
+    # orb = cv2.ORB_create(max_features, scaleFactor=2, nlevels=3)
+    orb = cv2.ORB_create(max_features)
     # orb = cv2.SIFT_create()
 
     (kpsA, descsA) = orb.detectAndCompute(smaller_image, None)

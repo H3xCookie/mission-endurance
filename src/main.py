@@ -75,10 +75,6 @@ def sat_main(scale_factor=(5, 5)):
             sat_image.data, homography, (base_h, base_w), flags=cv2.INTER_NEAREST
         )
     )
-    # fig, (ax1, ax2) = plt.subplots(1, 2)
-    # ax1.imshow(cv2.imread("monkedir/ground_image_1_rgb.tiff"))
-    # ax2.imshow(sat_image.data)
-    # plt.show()
 
     fig, ax = plt.subplots(2, 2)
     ground_image = SatImage(image=cv2.imread("monkedir/ground_image_1_rgb.tiff"))

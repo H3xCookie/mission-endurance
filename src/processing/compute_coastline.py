@@ -29,22 +29,30 @@ def grayscale_coastline(sat_image: SatImage) -> SatImage:
     max_value = np.quantile(blue_values, 0.98)
     blue_values = np.clip(blue_values.astype(np.float16) * 254.0 / max_value, 0, 255)
     blue_values = blue_values.astype(np.uint8)
-
-    _, coastline_mask = cv2.threshold(
-        blue_values.reshape((height, width)), 0, 1, cv2.THRESH_BINARY + cv2.THRESH_OTSU
-    )
-
-    coastline_mask = coastline_mask.astype(np.uint8) * 255
     filter_size = max(5, int(int(0.01 * height) / 2) * 2 + 1)
-    print(filter_size)
+    print(f"filter size {filter_size}")
+
     blurred_coastline = cv2.GaussianBlur(
-        coastline_mask,
+        blue_values.reshape((height, width)),
         (filter_size, filter_size),
         0,
     )
 
-    # plt.imshow(blurred_coastline)
-    # plt.show()
+    _, blurred_coastline = cv2.threshold(
+        blurred_coastline, 0, 1, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+    )
+
+    blurred_coastline = blurred_coastline.astype(np.uint8) * 255
+    filter_size = max(5, int(int(0.002 * height) / 2) * 2 + 1)
+    blurred_coastline = cv2.GaussianBlur(
+        blurred_coastline,
+        (filter_size, filter_size),
+        0,
+    )
+    print("blurred_coastline")
+    plt.imshow(blurred_coastline)
+    plt.show()
+
     return SatImage(image=blurred_coastline, mask=sat_image.mask)
 
 

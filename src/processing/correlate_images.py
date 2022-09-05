@@ -94,7 +94,6 @@ def compute_transform_from_keypoints(
     matches = matcher.match(descA, descB, None)
 
     matches = sorted(matches, key=lambda x: x.distance)
-
     # keep only the top matches
     keep = int(len(matches) * 0.8)
     matches = matches[:keep]
@@ -112,11 +111,15 @@ def compute_transform_from_keypoints(
     return homography
 
 
-def get_keypoints(coastline: SatImage, scale_factor=(10, 10)) -> Keypoints:
+def get_keypoints(coastline: SatImage, scale_factor=(10, 10), binary=True) -> Keypoints:
     """
     first scales down the image height by scale_factor[0] and the width by scale_factor[1], computest the scaled down keypoints, scales them back up and returns them.
     """
-    coastline_data = coastline.data.astype(np.float32) * 255 / np.max(coastline.data)
+    coastline_data = coastline.data
+    if binary:
+        coastline_data = (
+            coastline.data.astype(np.float32) * 255 / np.max(coastline.data)
+        )
     coastline_data = coastline_data.astype(np.uint8)
     height, width = coastline_data.shape[:2]
 

@@ -9,6 +9,39 @@ from time_and_shoot.sat_image import SatImage
 from preprocessing import cloud_mask
 
 
+def precompute_coastline_keypoints():
+    print("precompute Keypoints")
+    base_image = cv2.imread("./monkedir/ground_image_1_rgb.tiff")
+
+    final_image_data = compute_coastline.compute_coastline(SatImage(image=base_image))
+
+    scale_factor = (10, 10)
+    ground_keypoints = correlate_images.get_keypoints(final_image_data, scale_factor)
+    print("Keypoints: ", len(ground_keypoints.kpts))
+    output_with_keypoints = base_image
+    for kp in ground_keypoints.kpts:
+        x, y = kp.pt
+        cv2.circle(
+            output_with_keypoints,
+            (int(x * scale_factor[1]), int(y * scale_factor[0])),
+            20,
+            color=(255, 0, 0),
+            thickness=-1,
+        )
+    plt.imshow(output_with_keypoints)
+    plt.show()
+    with open("./monkedir/precomputed_scaled_keypoingts.pkl", "wb") as file:
+        pickle.dump(ground_keypoints.hashable(), file)
+    print("Keypoints are saved in ./monkedir/precomputed_scaled_keypoingts.pkl")
+
+
+def load_precomputed_keypoints(filename) -> Keypoints:
+    with open(filename, "rb") as file:
+        ground_keypoints = Keypoints(from_hash=True, hash_object=pickle.load(file))
+    print(f"loaded ground image Keypoints with shape {ground_keypoints.shape}")
+    return ground_keypoints
+
+
 def precompute_coastline():
     base_image = cv2.imread("./monkedir/stacked_rgb.tiff")
 
@@ -20,36 +53,5 @@ def precompute_coastline():
     cv2.imwrite("./monkedir/precomputed_coastline_rgb_sat.tiff", final_image_data)
 
 
-def precompute_coastline_keypoints():
-    print("precompute Keypoints")
-    base_image = cv2.imread("./monkedir/ground_image_1_rgb.tiff")
-
-    final_image_data = compute_coastline.grayscale_coastline(SatImage(image=base_image))
-
-    ground_keypoints = correlate_images.get_keypoints(final_image_data)
-    print("Keypoints: ", len(ground_keypoints.kpts))
-    output_with_keypoints = base_image
-    cv2.drawKeypoints(
-        base_image,
-        ground_keypoints.kpts,
-        output_with_keypoints,
-        color=(255, 0, 0),
-        flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
-    )
-    plt.imshow(output_with_keypoints)
-    plt.show()
-    # print(type(ground_keypoints.kpts), type(ground_keypoints.desc))
-    # with open("./monkedir/precomputed_keypoingts.pkl", "wb") as file:
-    #     pickle.dump(ground_keypoints.hashable(), file)
-    # print("Keypoints are saved in ./monkedir/precomputed_keypoingts.pkl")
-
-
 def load_precomputed_coastline(filename) -> SatImage:
     return SatImage(image=cv2.cvtColor(cv2.imread(filename) * 255, cv2.COLOR_BGR2GRAY))
-
-
-def load_precomputed_keypoints(filename) -> Keypoints:
-    with open(filename, "rb") as file:
-        ground_keypoints = Keypoints(from_hash=True, hash_object=pickle.load(file))
-    print(f"loaded ground image Keypoints with shape {ground_keypoints.shape}")
-    return ground_keypoints

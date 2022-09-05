@@ -1,7 +1,6 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-
 from time_and_shoot.sat_image import SatImage
 
 
@@ -108,16 +107,20 @@ def compute_transform_from_keypoints(
     return homography
 
 
-def get_keypoints(coastline: SatImage) -> Keypoints:
+def get_keypoints(coastline: SatImage, scale_factor=(10, 10)) -> Keypoints:
     coastline_data = coastline.data.astype(np.float32) * 255 / np.max(coastline.data)
     coastline_data = coastline_data.astype(np.uint8)
     height, width = coastline_data.shape[:2]
 
+    # resize image to size where it should work
+    new_shape = (int(height / scale_factor[0]), int(width / scale_factor[1]))
+    smaller_image = cv2.resize(coastline_data, new_shape)
     max_features = 300
     orb = cv2.ORB_create(max_features)
 
-    (kpsA, descsA) = orb.detectAndCompute(coastline_data, None)
-    return Keypoints(shape=coastline_data.shape, kpts=kpsA, desc=descsA)
+    (kpsA, descsA) = orb.detectAndCompute(smaller_image, None)
+
+    return Keypoints(shape=new_shape, kpts=kpsA, desc=descsA)
 
 
 def compute_affine_transform(image_from_sat: SatImage, ground_image: SatImage):

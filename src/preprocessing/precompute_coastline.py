@@ -1,5 +1,6 @@
 import cv2
 import dill as pickle
+import matplotlib.pyplot as plt
 import numpy as np
 from processing import compute_coastline, correlate_images
 from processing.correlate_images import Keypoints
@@ -23,15 +24,24 @@ def precompute_coastline_keypoints():
     print("precompute Keypoints")
     base_image = cv2.imread("./monkedir/ground_image_1_rgb.tiff")
 
-    # TODO use the cloud mask
-    # cloud_filter = cloud_mask.cloud_mask(SatImage(image=base_image))
+    final_image_data = compute_coastline.grayscale_coastline(SatImage(image=base_image))
 
-    final_image_data = compute_coastline.compute_coastline(SatImage(image=base_image))
     ground_keypoints = correlate_images.get_keypoints(final_image_data)
-    print(type(ground_keypoints.kpts), type(ground_keypoints.desc))
-    with open("./monkedir/precomputed_keypoingts.pkl", "wb") as file:
-        pickle.dump(ground_keypoints.hashable(), file)
-    print("Keypoints are saved in ./monkedir/precomputed_keypoingts.pkl")
+    print("Keypoints: ", len(ground_keypoints.kpts))
+    output_with_keypoints = base_image
+    cv2.drawKeypoints(
+        base_image,
+        ground_keypoints.kpts,
+        output_with_keypoints,
+        color=(255, 0, 0),
+        flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
+    )
+    plt.imshow(output_with_keypoints)
+    plt.show()
+    # print(type(ground_keypoints.kpts), type(ground_keypoints.desc))
+    # with open("./monkedir/precomputed_keypoingts.pkl", "wb") as file:
+    #     pickle.dump(ground_keypoints.hashable(), file)
+    # print("Keypoints are saved in ./monkedir/precomputed_keypoingts.pkl")
 
 
 def load_precomputed_coastline(filename) -> SatImage:

@@ -18,7 +18,9 @@ def precompute_coastline_keypoints():
     scale_factor = (10, 10)
     ground_keypoints = correlate_images.get_keypoints(final_image_data, scale_factor)
     print("Keypoints: ", len(ground_keypoints.kpts))
-    output_with_keypoints = base_image
+    output_with_keypoints = cv2.cvtColor(
+        final_image_data.data.astype(np.uint8) * 255, cv2.COLOR_GRAY2RGB
+    )
     for kp in ground_keypoints.kpts:
         x, y = kp.pt
         cv2.circle(
@@ -30,9 +32,13 @@ def precompute_coastline_keypoints():
         )
     plt.imshow(output_with_keypoints)
     plt.show()
-    with open("./monkedir/precomputed_scaled_keypoingts.pkl", "wb") as file:
+    new_filename = f"./monkedir/precomputed_scaled_{scale_factor[0]}_{scale_factor[1]}keypoingts.pkl"
+    with open(
+        new_filename,
+        "wb",
+    ) as file:
         pickle.dump(ground_keypoints.hashable(), file)
-    print("Keypoints are saved in ./monkedir/precomputed_scaled_keypoingts.pkl")
+    print(f"Keypoints are saved in {new_filename}")
 
 
 def load_precomputed_keypoints(filename) -> Keypoints:

@@ -58,8 +58,6 @@ def sat_main():
     homography = correlate_images.compute_transform_from_keypoints(
         sat_coastline_keypoints,
         ground_keypoints,
-        sat_image,
-        SatImage(image=cv2.imread("monkedir/ground_image_1_rgb.tiff")),
     )
 
     print("warp sat image to ground image")
@@ -95,6 +93,6 @@ def sat_main():
 
 
 if __name__ == "__main__":
-    # sat_main()
+    sat_main()
     # print("main of main")
-    precompute_coastline.precompute_coastline_keypoints()
+    # precompute_coastline.precompute_coastline_keypoints()

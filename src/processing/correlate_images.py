@@ -68,18 +68,20 @@ class Keypoints:
             new_kp = kp
             new_x = kp.pt[0] * scale_up_factor[1]
             new_y = kp.pt[1] * scale_up_factor[0]
-            new_kp.pt = (int(new_x), int(new_y))
+            new_kp.pt = (new_x, new_y)
             new_kpts.append(new_kp)
 
         self.kpts = tuple(new_kpts)
+        self.shape = (
+            self.shape[0] * scale_up_factor[1],
+            self.shape[0] * scale_up_factor[1],
+        )
         return self
 
 
 def compute_transform_from_keypoints(
     sat_keypoints: Keypoints,
     ground_keypoints: Keypoints,
-    sat_image: SatImage,
-    ground_image: SatImage,
 ):
     """
     computes and returns the affine transformation (homography) which maps the sat_keypoints to ground_keypoints.
@@ -98,15 +100,15 @@ def compute_transform_from_keypoints(
     matches = matches[:keep]
     n_matches = len(matches)
     print(f"Number of matches: {n_matches}")
-    if True:
-        x = sat_image.data
-        cv2.drawKeypoints(sat_image.data, kpsA, x, color=(0, 0, 255))
+    # if True:
+    #     x = sat_image.data
+    #     cv2.drawKeypoints(sat_image.data, kpsA, x, color=(0, 0, 255))
 
-        # matchedVis = cv2.drawMatches(
-        #     ground_image.data, kpsA, sat_image.data, kpsB, matches[:100], None
-        # )
-        plt.imshow(x)
-        plt.show()
+    #     # matchedVis = cv2.drawMatches(
+    #     #     ground_image.data, kpsA, sat_image.data, kpsB, matches[:100], None
+    #     # )
+    #     plt.imshow(x)
+    #     plt.show()
 
     p1 = np.zeros((n_matches, 2))
     p2 = np.zeros((n_matches, 2))

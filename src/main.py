@@ -15,7 +15,7 @@ from time_and_shoot.sat_image import SatImage
 
 def sat_main():
     """
-    the main fn which runs on the satellite. field coords must
+    the main fn which runs on the satellite. fiedl coords must
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
     parser = argparse.ArgumentParser(description="Pass precomputed coastline")
@@ -27,24 +27,24 @@ def sat_main():
     time_to_take_picture = "2022:09:03,12:00:00,000"
     sat_image = shoot.take_picture(time_to_take_picture)
     height, width = sat_image.data.shape[:2]
+    # plt.imshow(sat_image.data)
+    # plt.show()
 
     print("sat image h, w: ", height, width)
     # add mask attribute to the image
     print("compute cloud mask of picture")
-    sat_image.mask = cloud_mask.cloud_mask(sat_image)
+    # sat_image.mask = cloud_mask.cloud_mask(sat_image)
     print("compute coastline and Keypoints of picture")
     sat_coastline = compute_coastline.compute_coastline(sat_image)
     sat_coastline_keypoints = correlate_images.get_keypoints(sat_coastline)
     # x then y coordinate, need to flip them later so y is first, then x
     good_fields = [
-        [[4335, 2563], [4452, 2691], [4553, 2608], [4444, 2475]],
-        [[3364, 2228], [3394, 2322], [3420, 2231]],
-        [[4631, 2274], [4658, 2188], [4625, 2185], [4586, 2239]],
+        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
+        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
     ]
     bad_fields = [
-        [[2958, 3493], [2964, 3525], [3072, 3471], [3078, 3419]],
-        [[3884, 3464], [3902, 3351], [3800, 3328]],
-        [[4212, 3482], [4215, 3545], [4312, 3488]],
+        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
+        [[2100, 450], [2100, 1000], [3000, 1000], [3000, 200]],
     ]
 
     print("load precomputed coastline Keypoints")
@@ -55,7 +55,10 @@ def sat_main():
     # compute and apply homography to the original sat image
     print("compute homography")
     homography = correlate_images.compute_transform_from_keypoints(
-        sat_coastline_keypoints, ground_keypoints
+        sat_coastline_keypoints,
+        ground_keypoints,
+        sat_image,
+        SatImage(image=cv2.imread("monkedir/ground_image_1_rgb.tiff")),
     )
 
     print("warp sat image to ground image")
@@ -66,7 +69,7 @@ def sat_main():
             sat_image.data, homography, (base_h, base_w), flags=cv2.INTER_NEAREST
         )
     )
-    fig, ax = plt.subplots(2, 3)
+    fig, ax = plt.subplots(2, 2)
     for dataset_index, dataset in enumerate([good_fields, bad_fields]):
         for index, points in enumerate(dataset):
             print(points)
@@ -91,6 +94,6 @@ def sat_main():
 
 
 if __name__ == "__main__":
-    sat_main()
+    # sat_main()
     # print("main of main")
-    # precompute_coastline.precompute_coastline_keypoints()
+    precompute_coastline.precompute_coastline_keypoints()

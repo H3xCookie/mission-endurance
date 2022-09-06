@@ -1,6 +1,7 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+
 from time_and_shoot.sat_image import SatImage
 
 

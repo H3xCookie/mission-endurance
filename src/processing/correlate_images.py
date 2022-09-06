@@ -1,7 +1,6 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-
 from time_and_shoot.sat_image import SatImage
 
 
@@ -83,7 +82,7 @@ class Keypoints:
 def compute_transform_from_keypoints(
     sat_keypoints: Keypoints,
     ground_keypoints: Keypoints,
-) -> tuple[np.ndarray, bool]:
+):
     """
     computes and returns the affine transformation (homography) which maps the sat_keypoints to ground_keypoints, as well as a boolean whether it was successful.
     Returns: (homography, align_was_successful)

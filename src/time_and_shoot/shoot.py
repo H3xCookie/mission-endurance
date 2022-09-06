@@ -43,7 +43,9 @@ def take_picture(utc_time_for_picture) -> SatImage:
     # )[0]
     # return take_picture_from_file(picture_filename)
 
-    picture = take_picture_from_file("./monkedir/sat_image_1_bgr.tiff")
+    filename = "./monkedir/sat_image_4_bgr.tiff"
+    picture = take_picture_from_file(filename)
+    print(f"the satellite image is {filename}")
     # flip picture since it is already in bgr
     picture = SatImage(image=np.flip(picture.data, axis=2))
     return picture

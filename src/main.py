@@ -18,7 +18,7 @@ def preview_ground_image():
     gnd_image = cv2.imread("monkedir/ground_image_1_bgr.tiff")
 
     # already in rgb
-    plt.imshow(gnd_image)
+    plt.imshow(np.clip(2 * gnd_image.astype(np.uint16), 0, 255))
     plt.show()
 
 
@@ -47,13 +47,21 @@ def sat_main(scale_factor=(5, 5)):
         sat_coastline, scale_factor
     )
     # x then y coordinate, need to flip them later so y is first, then x
+    # good_fields = [
+    #     [[2000, 1000], [2000, 1100], [2100, 1100], [2100, 1000]],
+    #     [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
+    # ]
+    # bad_fields = [
+    #     [[2000, 1000], [2000, 1100], [2100, 1100], [2100, 1000]],
+    #     [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
+    # ]
     good_fields = [
-        [[2000, 1000], [2000, 1100], [2100, 1100], [2100, 1000]],
-        [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
+        [[2031, 1106], [2107, 1097], [2093, 1008], [2023, 1034]],
+        [[2031, 1106], [2107, 1097], [2093, 1008], [2023, 1034]],
     ]
     bad_fields = [
-        [[2000, 1000], [2000, 1100], [2100, 1100], [2100, 1000]],
-        [[2000, 1000], [2000, 1400], [2400, 1400], [2400, 1000]],
+        [[2057, 1214], [2127, 1216], [2111, 1124], [2056, 1123]],
+        [[2057, 1214], [2127, 1216], [2111, 1124], [2056, 1123]],
     ]
 
     print("load precomputed coastline Keypoints")
@@ -81,32 +89,32 @@ def sat_main(scale_factor=(5, 5)):
         )
     )
 
-    fig, ax = plt.subplots(2, 2)
+    fig, ax = plt.subplots(1, 2)
     ground_image = SatImage(image=cv2.imread("monkedir/ground_image_1_bgr.tiff"))
     ground_image.data = np.flip(ground_image.data, axis=2)
-    for dataset_index, dataset in enumerate([good_fields, bad_fields]):
-        for index, points in enumerate(dataset):
-            print(points)
-            # pass aligned image and coordinates to image recognition algorithm
-            poly_points = np.flip(np.array(points).reshape((len(points), 2)), axis=1)
-            polygon = crop_field.Polygon(poly_points)
+    for index, points in enumerate(good_fields):
+        # pass aligned image and coordinates to image recognition algorithm
+        poly_points = np.flip(np.array(points).reshape((len(points), 2)), axis=1)
+        polygon = crop_field.Polygon(poly_points)
 
-            print("crop field")
-            if dataset_index == 0:
-                only_field = crop_field.select_only_field(ground_image, polygon)
-            else:
-                only_field = crop_field.select_only_field(sat_image, polygon)
+        print("crop field")
+        if index == 0:
+            only_field = crop_field.select_only_field(ground_image, polygon)
+        else:
+            only_field = crop_field.select_only_field(sat_image, polygon)
 
-            # compute the Green index of the field
-            print("compute index")
-            green_index = indeces.green_index(only_field)
+        # compute the Green index of the field
+        print("compute index")
+        green_index = indeces.green_index(only_field)
 
-            is_planted = make_decision.is_field_planted(green_index)
-            # downlink.send_message_down(f"{green_index}: {is_planted}")
-            ax[dataset_index][index].imshow(np.flip(only_field.data, axis=2))
-            ax[dataset_index][index].title.set_text(
-                f"green coeff {green_index: .2f}: {is_planted}"
-            )
+        is_planted = make_decision.is_field_planted(green_index)
+        # downlink.send_message_down(f"{green_index}: {is_planted}")
+        ax[index].imshow(
+            np.clip(
+                np.flip(only_field.data, axis=2).astype(np.float16) * 1.5, 0, 255
+            ).astype(np.uint8)
+        )
+        ax[index].title.set_text(f"green coeff {green_index: .2f}: {is_planted}")
 
     plt.show()
 
@@ -116,4 +124,3 @@ if __name__ == "__main__":
     scale_factor = (10, 10)
     precompute_coastline.precompute_coastline_keypoints(scale_factor)
     sat_main(scale_factor)
-    # print("main of main")

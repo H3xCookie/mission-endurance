@@ -29,9 +29,13 @@ def sat_main(scale_factor=(5, 5)):
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
     # os.chdir("/work/mission-endurance/")
-    parser = argparse.ArgumentParser(description="Pass precomputed coastline")
+    parser = argparse.ArgumentParser(
+        description="Pass the name of the pass folder, ex pass_1, and the filename of the keypoints of the ground image, ex config_files/pass_1/ground_keypoints_{scale_factor[0]}_{scale_factor[1]}.pkl"
+    )
+    parser.add_argument("--pass_folder", required=True)
     parser.add_argument("--ground_keypoints", required=True)
     args = parser.parse_args()
+    pass_folder = args.pass_folder
 
     print("take picture")
     setup_camera.turn_on_camera()
@@ -39,10 +43,7 @@ def sat_main(scale_factor=(5, 5)):
     sat_image = shoot.take_picture(time_to_take_picture)
     height, width = sat_image.data.shape[:2]
 
-    print("sat image h, w: ", height, width)
-    # add mask attribute to the image
-    print("compute cloud mask of picture")
-    # sat_image.mask = cloud_mask.cloud_mask(sat_image)
+    sat_image.mask = cloud_mask.cloud_mask(sat_image)
     print("compute coastline and Keypoints of picture")
     sat_coastline = compute_coastline.compute_coastline(sat_image)
     sat_coastline_keypoints = correlate_images.get_keypoints(
@@ -58,7 +59,7 @@ def sat_main(scale_factor=(5, 5)):
     #     [[2057, 1214], [2127, 1216], [2111, 1124], [2056, 1123]],
     #     [[2057, 1214], [2127, 1216], [2111, 1124], [2056, 1123]],
     # ]
-    field_coords = read_config_files.field_coords("pass_1")
+    field_coords = read_config_files.field_coords(pass_folder)
 
     print("load precomputed coastline Keypoints")
     ground_keypoints = precompute_coastline.load_precomputed_keypoints(
@@ -123,5 +124,5 @@ def sat_main(scale_factor=(5, 5)):
 if __name__ == "__main__":
     # preview_ground_image()
     scale_factor = (10, 10)
-    precompute_coastline.precompute_coastline_keypoints(scale_factor)
+    precompute_coastline.precompute_coastline_keypoints("pass_1", scale_factor)
     sat_main(scale_factor)

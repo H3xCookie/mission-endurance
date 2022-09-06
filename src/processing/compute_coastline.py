@@ -55,12 +55,14 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
     Computes the coastline of the image. Returns a black and white image mask, i.e. black is land, white is sea. The dtype is bool
     """
     image = sat_image.data
-    height, width, _ = image.shape
+    height, width = image.shape[:2]
 
     blue_values = blue_index(image.reshape((height * width, 3)))
     max_value = np.quantile(blue_values, 0.98)
     blue_values = np.clip(blue_values.astype(np.float16) * 254.0 / max_value, 0, 255)
     blue_values = blue_values.astype(np.uint8)
+    # plt.hist(blue_values, bins=100)
+    # plt.show()
 
     filter_size = max(5, int(int(0.01 * height) / 2) * 2 + 1)
     print(filter_size)
@@ -75,7 +77,7 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
 
     coastline_mask = coastline_mask.astype(bool)
 
-    coastline_mask = ~coastline_mask
+    # coastline_mask = ~coastline_mask
     # plt.imshow(coastline_mask)
     # plt.show()
     return SatImage(image=coastline_mask, mask=sat_image.mask)

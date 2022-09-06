@@ -79,6 +79,7 @@ def sat_main(scale_factor=(5, 5)):
 
     fig, ax = plt.subplots(2, 2)
     ground_image = SatImage(image=cv2.imread("monkedir/ground_image_1_bgr.tiff"))
+    ground_image.data = np.flip(ground_image.data, axis=2)
     for dataset_index, dataset in enumerate([good_fields, bad_fields]):
         for index, points in enumerate(dataset):
             print(points)

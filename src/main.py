@@ -98,6 +98,7 @@ def sat_main(scale_factor=(5, 5)):
         polygon = crop_field.Polygon(poly_points)
 
         print("crop field")
+
         if index == 0:
             only_field = crop_field.select_only_field(ground_image, polygon)
         else:

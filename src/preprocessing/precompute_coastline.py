@@ -2,16 +2,16 @@ import cv2
 import dill as pickle
 import matplotlib.pyplot as plt
 import numpy as np
-
-from preprocessing import cloud_mask
 from processing import compute_coastline, correlate_images
 from processing.correlate_images import Keypoints
 from time_and_shoot.sat_image import SatImage
 
+from preprocessing import cloud_mask
+
 
 def precompute_coastline_keypoints(scale_factor=(5, 5)):
     print("precompute Keypoints")
-    base_image = cv2.imread("./monkedir/ground_image_1_rgb.tiff")
+    base_image = cv2.imread("./monkedir/ground_image_1_bgr.tiff")
 
     final_image_data = compute_coastline.compute_coastline(SatImage(image=base_image))
 
@@ -32,7 +32,7 @@ def precompute_coastline_keypoints(scale_factor=(5, 5)):
     print("output_with_keypoints")
     plt.imshow(output_with_keypoints)
     plt.show()
-    new_filename = f"./monkedir/precomputed_scaled_{scale_factor[0]}_{scale_factor[1]}keypoingts.pkl"
+    new_filename = f"./monkedir/precomputed_scaled_{scale_factor[0]}_{scale_factor[1]}keypoints.pkl"
     with open(
         new_filename,
         "wb",

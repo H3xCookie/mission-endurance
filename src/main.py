@@ -14,9 +14,10 @@ from time_and_shoot.sat_image import SatImage
 
 
 def preview_ground_image():
-    gnd_image = cv2.imread("monkedir/ground_image_1_rgb.tiff")
+    gnd_image = cv2.imread("monkedir/ground_image_1_bgr.tiff")
 
-    plt.imshow(gnd_image[:, :, ::-1])
+    # already in rgb
+    plt.imshow(gnd_image)
     plt.show()
 
 
@@ -77,7 +78,7 @@ def sat_main(scale_factor=(5, 5)):
     )
 
     fig, ax = plt.subplots(2, 2)
-    ground_image = SatImage(image=cv2.imread("monkedir/ground_image_1_rgb.tiff"))
+    ground_image = SatImage(image=cv2.imread("monkedir/ground_image_1_bgr.tiff"))
     for dataset_index, dataset in enumerate([good_fields, bad_fields]):
         for index, points in enumerate(dataset):
             print(points)
@@ -107,7 +108,7 @@ def sat_main(scale_factor=(5, 5)):
 
 if __name__ == "__main__":
     # preview_ground_image()
-    scale_factor = (5, 5)
+    scale_factor = (10, 10)
     precompute_coastline.precompute_coastline_keypoints(scale_factor)
     sat_main(scale_factor)
     # print("main of main")

@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 import cv2
 import matplotlib.pyplot as plt
@@ -62,11 +63,14 @@ def sat_main(scale_factor=(5, 5)):
 
     # compute and apply homography to the original sat image
     print("compute homography")
-    homography = correlate_images.compute_transform_from_keypoints(
-        sat_coastline_keypoints,
-        ground_keypoints,
+    align_result = correlate_images.compute_transform_from_keypoints(
+        sat_coastline_keypoints, ground_keypoints
     )
-    print(homography)
+    homography, align_was_successful = align_result
+    if not align_was_successful:
+        print("cannot continue further")
+        downlink.send_message_down(f"ALIGN UNSUCCESSFUL")
+        sys.exit("ALIGN UNSUCCESSFUL")
 
     print("warp sat image to ground image")
     base_h, base_w = ground_keypoints.shape

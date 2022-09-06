@@ -1,6 +1,7 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+
 from time_and_shoot.sat_image import SatImage
 
 
@@ -82,9 +83,10 @@ class Keypoints:
 def compute_transform_from_keypoints(
     sat_keypoints: Keypoints,
     ground_keypoints: Keypoints,
-):
+) -> tuple[np.ndarray, bool]:
     """
-    computes and returns the affine transformation (homography) which maps the sat_keypoints to ground_keypoints.
+    computes and returns the affine transformation (homography) which maps the sat_keypoints to ground_keypoints, as well as a boolean whether it was successful.
+    Returns: (homography, align_was_successful)
     """
     # match the features
     print("matching keypoints")
@@ -108,7 +110,18 @@ def compute_transform_from_keypoints(
         p2[i, :] = kpsB[matches[i].trainIdx].pt
 
     homography, _ = cv2.findHomography(p1, p2, cv2.RANSAC)
-    return homography
+
+    stretch_matrix = homography[:2, :2]
+    determinant = (
+        stretch_matrix[0, 0] * stretch_matrix[1, 1]
+        - stretch_matrix[0, 1] * stretch_matrix[1, 0]
+    )
+    if abs(determinant - 1) > 0.3:
+        print("ALERT!!!!!!!!!!")
+        print("correlation of images failed")
+        return homography, False
+
+    return (homography, True)
 
 
 def get_keypoints(coastline: SatImage, scale_factor=(10, 10), binary=True) -> Keypoints:

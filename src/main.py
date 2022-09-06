@@ -65,7 +65,7 @@ def sat_main(scale_factor=(5, 5)):
     if not align_was_successful:
         print("cannot continue further")
         downlink.send_message_down(f"ALIGN UNSUCCESSFUL")
-        sys.exit("ALIGN UNSUCCESSFUL")
+        # sys.exit("ALIGN UNSUCCESSFUL")
 
     print("warp sat image to ground image")
     base_h, base_w = ground_keypoints.shape
@@ -78,9 +78,10 @@ def sat_main(scale_factor=(5, 5)):
 
     # =========================beam results back====================
     fig, ax = plt.subplots(1, 2)
-    ground_image = SatImage(image=cv2.imread("monkedir/ground_image_1_bgr.tiff"))
+    # ground_image = SatImage(image=cv2.imread(""))
+    ground_image = read_ground_image.read_ground_image(pass_folder)
     ground_image.data = np.flip(ground_image.data, axis=2)
-    for index, points in enumerate([field_coords]):
+    for index, points in enumerate([field_coords, field_coords]):
         # pass aligned image and coordinates to image recognition algorithm
         poly_points = np.flip(points, axis=1)
         polygon = crop_field.Polygon(poly_points)
@@ -88,25 +89,25 @@ def sat_main(scale_factor=(5, 5)):
         only_field = crop_field.select_only_field(sat_image, polygon)
         average_color = np.average(only_field.data, axis=(0, 1))
         # send data back to earth
-        downlink.send_message_down(f"{average_color}")
-        # print("crop field")
+        # downlink.send_message_down(f"{average_color}")
+        print("crop field")
 
-        # if index == 0:
-        #     only_field = crop_field.select_only_field(ground_image, polygon)
-        # else:
-        #     only_field = crop_field.select_only_field(sat_image, polygon)
+        if index == 0:
+            only_field = crop_field.select_only_field(ground_image, polygon)
+        else:
+            only_field = crop_field.select_only_field(sat_image, polygon)
 
-        # # compute the Green index of the field
-        # print("compute index")
+        # compute the Green index of the field
+        print("compute index")
         # green_index = indeces.green_index(only_field)
 
         # is_planted = make_decision.is_field_planted(green_index)
-        # # downlink.send_message_down(f"{green_index}: {is_planted}")
-        # ax[index].imshow(
-        #     np.clip(
-        #         np.flip(only_field.data, axis=2).astype(np.float16) * 1.5, 0, 255
-        #     ).astype(np.uint8)
-        # )
+        # downlink.send_message_down(f"{green_index}: {is_planted}")
+        ax[index].imshow(
+            np.clip(
+                np.flip(only_field.data, axis=2).astype(np.float16) * 1.5, 0, 255
+            ).astype(np.uint8)
+        )
         # ax[index].title.set_text(f"green coeff {green_index: .2f}: {is_planted}")
 
     plt.show()

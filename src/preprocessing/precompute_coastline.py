@@ -14,9 +14,7 @@ from preprocessing import cloud_mask
 
 def precompute_coastline_keypoints(pass_folder, scale_factor=(5, 5)):
     ground_coastline = read_ground_image.read_ground_image(pass_folder)
-    ground_coastline = compute_coastline.compute_coastline(
-        SatImage(image=ground_coastline)
-    )
+    ground_coastline = compute_coastline.compute_coastline(ground_coastline)
     ground_keypoints = correlate_images.get_keypoints(ground_coastline, scale_factor)
     # print("Keypoints: ", len(ground_keypoints.kpts))
     # output_with_keypoints = cv2.cvtColor(
@@ -38,7 +36,7 @@ def precompute_coastline_keypoints(pass_folder, scale_factor=(5, 5)):
     keypoint_filename = os.path.join(
         "config_files",
         pass_folder,
-        f"ground_keypoints_{scale_factor[0]: .0f}_{scale_factor[1]: .0f}.pkl",
+        f"ground_keypoints_{scale_factor[0]:.0f}_{scale_factor[1]:.0f}.pkl",
     )
     with open(
         keypoint_filename,

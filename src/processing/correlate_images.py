@@ -84,7 +84,8 @@ def compute_transform_from_keypoints(
     ground_keypoints: Keypoints,
 ):
     """
-    computes and returns the affine transformation (homography) which maps the sat_keypoints to ground_keypoints.
+    computes and returns the affine transformation (homography) which maps the sat_keypoints to ground_keypoints, as well as a boolean whether it was successful.
+    Returns: (homography, align_was_successful)
     """
     # match the features
     print("matching keypoints")
@@ -108,7 +109,17 @@ def compute_transform_from_keypoints(
         p2[i, :] = kpsB[matches[i].trainIdx].pt
 
     homography, _ = cv2.findHomography(p1, p2, cv2.RANSAC)
-    return homography
+
+    stretch_matrix = homography[:2, :2]
+    main_diagonal = stretch_matrix[0, 0] * stretch_matrix[1, 1]
+    rev_diagonal = stretch_matrix[0, 1] * stretch_matrix[1, 0]
+    determinant = (main_diagonal - rev_diagonal) / (main_diagonal)
+    if abs(determinant - 1) > 0.3:
+        print("ALERT!!!!!!!!!!")
+        print("correlation of images failed")
+        return homography, False
+
+    return (homography, True)
 
 
 def get_keypoints(coastline: SatImage, scale_factor=(10, 10), binary=True) -> Keypoints:
@@ -136,48 +147,48 @@ def get_keypoints(coastline: SatImage, scale_factor=(10, 10), binary=True) -> Ke
     return Keypoints(shape=new_shape, kpts=kpsA, desc=descsA).scale_up(scale_factor)
 
 
-def compute_affine_transform(image_from_sat: SatImage, ground_image: SatImage):
-    """
-    computes and returns the affine transformation which maps parts of image_from to the corresponding parts on image_to
-    images should be opened by cv2.imread and have one channel only, so shape (height, width)
-    """
-    # images should be 8 bit grayscale for detectAndCompute method
-    image_from = image_from_sat.data.astype(np.uint8) * 255
-    image_to = ground_image.data.astype(np.uint8) * 255
+# def compute_affine_transform(image_from_sat: SatImage, ground_image: SatImage):
+#     """
+#     computes and returns the affine transformation which maps parts of image_from to the corresponding parts on image_to
+#     images should be opened by cv2.imread and have one channel only, so shape (height, width)
+#     """
+#     # images should be 8 bit grayscale for detectAndCompute method
+#     image_from = image_from_sat.data.astype(np.uint8) * 255
+#     image_to = ground_image.data.astype(np.uint8) * 255
 
-    max_features = 500
-    orb = cv2.ORB_create(max_features)
-    # print(image_from.shape, image_to.shape)
-    # plt.imshow(image_from)
-    # plt.show()
-    (kpsA, descsA) = orb.detectAndCompute(image_to, None)
-    (kpsB, descsB) = orb.detectAndCompute(image_from, None)
+#     max_features = 500
+#     orb = cv2.ORB_create(max_features)
+#     # print(image_from.shape, image_to.shape)
+#     # plt.imshow(image_from)
+#     # plt.show()
+#     (kpsA, descsA) = orb.detectAndCompute(image_to, None)
+#     (kpsB, descsB) = orb.detectAndCompute(image_from, None)
 
-    # match the features
-    matcher = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
-    matches = matcher.match(descsA, descsB, None)
+#     # match the features
+#     matcher = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
+#     matches = matcher.match(descsA, descsB, None)
 
-    matches = sorted(matches, key=lambda x: x.distance)
-    print(kpsB[:5])
+#     matches = sorted(matches, key=lambda x: x.distance)
+#     print(kpsB[:5])
 
-    # keep only the top matches
-    keep = int(len(matches) * 0.8)
-    matches = matches[:keep]
-    n_matches = len(matches)
-    print(f"Number of matches: {n_matches}")
-    if False:
-        matchedVis = cv2.drawMatches(
-            image_to, kpsA, image_from, kpsB, matches[:30], None
-        )
-        plt.imshow(matchedVis)
-        plt.show()
+#     # keep only the top matches
+#     keep = int(len(matches) * 0.8)
+#     matches = matches[:keep]
+#     n_matches = len(matches)
+#     print(f"Number of matches: {n_matches}")
+#     if False:
+#         matchedVis = cv2.drawMatches(
+#             image_to, kpsA, image_from, kpsB, matches[:30], None
+#         )
+#         plt.imshow(matchedVis)
+#         plt.show()
 
-    p1 = np.zeros((n_matches, 2))
-    p2 = np.zeros((n_matches, 2))
+#     p1 = np.zeros((n_matches, 2))
+#     p2 = np.zeros((n_matches, 2))
 
-    for i in range(len(matches)):
-        p1[i, :] = kpsA[matches[i].queryIdx].pt
-        p2[i, :] = kpsB[matches[i].trainIdx].pt
+#     for i in range(len(matches)):
+#         p1[i, :] = kpsA[matches[i].queryIdx].pt
+#         p2[i, :] = kpsB[matches[i].trainIdx].pt
 
-    homography, mask = cv2.findHomography(p1, p2, cv2.RANSAC)
-    return homography
+#     homography, mask = cv2.findHomography(p1, p2, cv2.RANSAC)
+#     return homography

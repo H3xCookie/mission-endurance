@@ -4,6 +4,8 @@ import subprocess
 from datetime import timezone
 from time import sleep
 
+import numpy as np
+
 from time_and_shoot.sat_image import SatImage
 
 
@@ -25,9 +27,8 @@ def utc_timestamp():
 
 def take_picture(utc_time_for_picture) -> SatImage:
     """
-    A fucntion which interfaces with the camera of the satellite and returns a picture. !TBD it recieves the time at which to take the picture, waits until then, takes a picture and returns it.
+    A fucntion which interfaces with the camera of the satellite and returns a picture. It returns the image in BGR format, so SatImage.data[0] is the blue band
 
-    Args: TBD
     returns: A `SatImage` class, which wraps around the tif produced by the satellite
     """
     # TODO test
@@ -42,4 +43,9 @@ def take_picture(utc_time_for_picture) -> SatImage:
     # )[0]
     # return take_picture_from_file(picture_filename)
 
-    return take_picture_from_file("./monkedir/sat_image_1_rgb.tiff")
+    filename = "./monkedir/sat_image_3_bgr.tiff"
+    picture = take_picture_from_file(filename)
+    print(f"the satellite image is {filename}")
+    # flip picture since it is already in bgr
+    picture = SatImage(image=np.flip(picture.data, axis=2))
+    return picture

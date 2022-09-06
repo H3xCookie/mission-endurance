@@ -1,47 +1,45 @@
+import os
+
 import cv2
 import dill as pickle
 import matplotlib.pyplot as plt
 import numpy as np
 from processing import compute_coastline, correlate_images
 from processing.correlate_images import Keypoints
-from read_config import read_ground_coastline
+from read_config import read_ground_image
 from time_and_shoot.sat_image import SatImage
 
 from preprocessing import cloud_mask
 
 
 def precompute_coastline_keypoints(pass_folder, scale_factor=(5, 5)):
-    print("precompute Keypoints")
-    # base_image = cv2.imread("./monkedir/ground_image_1_bgr.tiff")
-    base_image = read_ground_coastline.read_coastline(pass_folder).data
-    # flip it since it is already in bgr and cv2.imred flips it
-    base_image = np.flip(base_image, axis=2)
-    # now the base_image[0] is Blue band
-
-    final_image_data = compute_coastline.compute_coastline(SatImage(image=base_image))
-
-    ground_keypoints = correlate_images.get_keypoints(final_image_data, scale_factor)
-    print("Keypoints: ", len(ground_keypoints.kpts))
-    output_with_keypoints = cv2.cvtColor(
-        final_image_data.data.astype(np.uint8) * 255, cv2.COLOR_GRAY2RGB
+    ground_coastline = read_ground_image.read_ground_image(pass_folder)
+    ground_coastline = compute_coastline.compute_coastline(
+        SatImage(image=ground_coastline)
     )
-    for kp in ground_keypoints.kpts:
-        x, y = kp.pt
-        cv2.circle(
-            output_with_keypoints,
-            (int(x), int(y)),
-            15,
-            color=(255, 0, 0),
-            thickness=-1,
-        )
-    print("output_with_keypoints")
-    plt.imshow(output_with_keypoints)
-    plt.show()
+
+    ground_keypoints = correlate_images.get_keypoints(ground_coastline, scale_factor)
+    # print("Keypoints: ", len(ground_keypoints.kpts))
+    # output_with_keypoints = cv2.cvtColor(
+    #     ground_coastline.data.astype(np.uint8) * 255, cv2.COLOR_GRAY2RGB
+    # )
+    # for kp in ground_keypoints.kpts:
+    #     x, y = kp.pt
+    #     cv2.circle(
+    #         output_with_keypoints,
+    #         (int(x), int(y)),
+    #         15,
+    #         color=(255, 0, 0),
+    #         thickness=-1,
+    #     )
+    # print("output_with_keypoints")
+    # plt.imshow(output_with_keypoints)
+    # plt.show()
     # new_filename = f"./monkedir/precomputed_scaled_{scale_factor[0]}_{scale_factor[1]}keypoints.pkl"
     keypoint_filename = os.path.join(
         "config_files",
         pass_folder,
-        f"ground_keypoints_{scale_factor[0]: .0f}_{scale_factor[1]: .0f}",
+        f"ground_keypoints_{scale_factor[0]: .0f}_{scale_factor[1]: .0f}.pkl",
     )
     with open(
         keypoint_filename,
@@ -54,7 +52,7 @@ def precompute_coastline_keypoints(pass_folder, scale_factor=(5, 5)):
 def load_precomputed_keypoints(filename) -> Keypoints:
     with open(filename, "rb") as file:
         ground_keypoints = Keypoints(from_hash=True, hash_object=pickle.load(file))
-    print(f"loaded ground image Keypoints with shape {ground_keypoints.shape}")
+    print(f"loaded ground image Keypoints of image with shape {ground_keypoints.shape}")
     return ground_keypoints
 
 

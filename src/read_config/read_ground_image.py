@@ -1,9 +1,10 @@
 import os
 
 import cv2
-from time_and_shoot.sat_image import SatImage
-
+import dill as pickle
 from preprocessing import cloud_mask
+from processing.correlate_images import Keypoints
+from time_and_shoot.sat_image import SatImage
 
 
 def read_ground_image(pass_folder) -> SatImage:
@@ -14,3 +15,10 @@ def read_ground_image(pass_folder) -> SatImage:
     default_image = SatImage(image=cv2.imread(image_filename))
     default_image.mask = cloud_mask.cloud_mask(default_image)
     return default_image
+
+
+def read_ground_keypoints(filename) -> Keypoints:
+    with open(filename, "rb") as file:
+        ground_keypoints = Keypoints(from_hash=True, hash_object=pickle.load(file))
+    print(f"loaded ground image Keypoints of image with shape {ground_keypoints.shape}")
+    return ground_keypoints

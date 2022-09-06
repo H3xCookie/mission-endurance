@@ -10,7 +10,7 @@ from communications import downlink
 from preprocessing import cloud_mask, precompute_coastline
 from processing import compute_coastline, correlate_images, crop_field
 from processing.correlate_images import Keypoints
-from read_config import read_config_files
+from read_config import read_config_files, read_ground_image
 from time_and_shoot import setup_camera, shoot
 from time_and_shoot.sat_image import SatImage
 
@@ -37,36 +37,26 @@ def sat_main(scale_factor=(5, 5)):
     args = parser.parse_args()
     pass_folder = args.pass_folder
 
-    print("take picture")
+    # ===================camera setup================================
     setup_camera.turn_on_camera()
     time_to_take_picture = "2022:09:03,12:00:00,000"
+    # ===================satellite image manupulations==================
     sat_image = shoot.take_picture(time_to_take_picture)
-    height, width = sat_image.data.shape[:2]
 
     sat_image.mask = cloud_mask.cloud_mask(sat_image)
-    print("compute coastline and Keypoints of picture")
     sat_coastline = compute_coastline.compute_coastline(sat_image)
     sat_coastline_keypoints = correlate_images.get_keypoints(
         sat_coastline, scale_factor
     )
-    # x then y coordinate, need to flip them later so y is first, then x
-    #
-    # good_fields = [
-    #     [[2031, 1106], [2107, 1097], [2093, 1008], [2023, 1034]],
-    #     [[2031, 1106], [2107, 1097], [2093, 1008], [2023, 1034]],
-    # ]
-    # bad_fields = [
-    #     [[2057, 1214], [2127, 1216], [2111, 1124], [2056, 1123]],
-    #     [[2057, 1214], [2127, 1216], [2111, 1124], [2056, 1123]],
-    # ]
+
+    # =====================ground image manupulations==================
     field_coords = read_config_files.field_coords(pass_folder)
 
     print("load precomputed coastline Keypoints")
-    ground_keypoints = precompute_coastline.load_precomputed_keypoints(
-        args.ground_keypoints
-    )
+    ground_keypoints = read_ground_image.read_ground_keypoints(args.ground_keypoints)
 
     # compute and apply homography to the original sat image
+    # =====================aligning of the sat image==================
     print("compute homography")
     align_result = correlate_images.compute_transform_from_keypoints(
         sat_coastline_keypoints, ground_keypoints
@@ -86,6 +76,7 @@ def sat_main(scale_factor=(5, 5)):
         )
     )
 
+    # =========================beam results back====================
     fig, ax = plt.subplots(1, 2)
     ground_image = SatImage(image=cv2.imread("monkedir/ground_image_1_bgr.tiff"))
     ground_image.data = np.flip(ground_image.data, axis=2)

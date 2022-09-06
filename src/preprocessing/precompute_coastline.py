@@ -17,7 +17,6 @@ def precompute_coastline_keypoints(pass_folder, scale_factor=(5, 5)):
     ground_coastline = compute_coastline.compute_coastline(
         SatImage(image=ground_coastline)
     )
-
     ground_keypoints = correlate_images.get_keypoints(ground_coastline, scale_factor)
     # print("Keypoints: ", len(ground_keypoints.kpts))
     # output_with_keypoints = cv2.cvtColor(
@@ -49,11 +48,11 @@ def precompute_coastline_keypoints(pass_folder, scale_factor=(5, 5)):
     print(f"Keypoints are saved in {keypoint_filename}")
 
 
-def load_precomputed_keypoints(filename) -> Keypoints:
-    with open(filename, "rb") as file:
-        ground_keypoints = Keypoints(from_hash=True, hash_object=pickle.load(file))
-    print(f"loaded ground image Keypoints of image with shape {ground_keypoints.shape}")
-    return ground_keypoints
+# def load_precomputed_keypoints(filename) -> Keypoints:
+#     with open(filename, "rb") as file:
+#         ground_keypoints = Keypoints(from_hash=True, hash_object=pickle.load(file))
+#     print(f"loaded ground image Keypoints of image with shape {ground_keypoints.shape}")
+#     return ground_keypoints
 
 
 # def precompute_coastline():

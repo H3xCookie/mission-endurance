@@ -4,11 +4,6 @@ import numpy as np
 import rasterio
 
 
-def image_with_nir():
-    full_image = "./data/OUTPUT_TIF/merged.tif"
-    bgrnir_filename = "./monkedir/bgrnir_image_2.tiff"
-
-
 def get_bgrnir_image():
     filename = "./data/OUTPUT_TIF/S2A_MSIL1C_20220527T085601_N0400_R007_T35TNH_20220527T110350_PROCESSED/merged.tif"
     ndvi_image = "./monkedir/bgrnir_image_1.tiff"

@@ -42,7 +42,7 @@ def take_picture(utc_time_for_picture) -> SatImage:
     #     "/work/mission-endurance/monkedir/sat_captured_images/"
     # )[0]
     # return take_picture_from_file(picture_filename)
-    filename = "./config_files/pass_1/sat_image_3_bgr.tiff"
+    filename = "./monkedir/namibia_sat_image.tiff"
     print(f"the satellite image is {filename}")
     # flip picture since it is already in bgr
     picture = take_picture_from_file(filename)

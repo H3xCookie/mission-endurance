@@ -48,7 +48,6 @@ def sat_main(scale_factor=(5, 5)):
     sat_coastline_keypoints = correlate_images.get_keypoints(
         sat_coastline, scale_factor
     )
-
     # =====================ground image manupulations==================
     field_coords = read_config_files.field_coords(pass_folder)
 
@@ -88,8 +87,6 @@ def sat_main(scale_factor=(5, 5)):
 
         only_field = crop_field.select_only_field(sat_image, polygon)
         average_color = np.average(only_field.data, axis=(0, 1))
-        # send data back to earth
-        # downlink.send_message_down(f"{average_color}")
         print("crop field")
 
         if index == 0:
@@ -97,18 +94,12 @@ def sat_main(scale_factor=(5, 5)):
         else:
             only_field = crop_field.select_only_field(sat_image, polygon)
 
-        # compute the Green index of the field
-        print("compute index")
-        # green_index = indeces.green_index(only_field)
-
-        # is_planted = make_decision.is_field_planted(green_index)
         # downlink.send_message_down(f"{green_index}: {is_planted}")
         ax[index].imshow(
             np.clip(
                 np.flip(only_field.data, axis=2).astype(np.float16) * 1.5, 0, 255
             ).astype(np.uint8)
         )
-        # ax[index].title.set_text(f"green coeff {green_index: .2f}: {is_planted}")
 
     plt.show()
 
@@ -116,5 +107,7 @@ def sat_main(scale_factor=(5, 5)):
 if __name__ == "__main__":
     # preview_ground_image()
     scale_factor = (10, 10)
-    precompute_coastline.precompute_coastline_keypoints("pass_1", scale_factor)
+    precompute_coastline.precompute_coastline_keypoints(
+        "2022-09-08T11_58_04", scale_factor
+    )
     sat_main(scale_factor)

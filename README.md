@@ -50,6 +50,10 @@ Takes as an `--ground_keypoints` input the pickled points (`.pkl`), which have b
 5. Compute a "greenness" index, based on which we decide whether the field is planted or not.
 6. Send the result back to Earth
 
+### `read_config`
+
+Reads the `config_files` directory containing information for each pass in separate folders. `read_config/read_config_files.py` has functions dealing with configuration files such as coordinates of the field and the exact time at which we need to take a picture.
+
 ### `time_and_shoot`
 
 Recieves the time at which is should shoot the image, waits unitl the time comes and takes a picture. It also provides the `SatImage` class, which wraps all other images in the code. 

@@ -4,14 +4,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 from processing import compute_coastline, correlate_images
 from processing.correlate_images import Keypoints
+from read_config import read_ground_coastline
 from time_and_shoot.sat_image import SatImage
 
 from preprocessing import cloud_mask
 
 
-def precompute_coastline_keypoints(scale_factor=(5, 5)):
+def precompute_coastline_keypoints(pass_folder, scale_factor=(5, 5)):
     print("precompute Keypoints")
-    base_image = cv2.imread("./monkedir/ground_image_1_bgr.tiff")
+    # base_image = cv2.imread("./monkedir/ground_image_1_bgr.tiff")
+    base_image = read_ground_coastline.read_coastline(pass_folder).data
     # flip it since it is already in bgr and cv2.imred flips it
     base_image = np.flip(base_image, axis=2)
     # now the base_image[0] is Blue band
@@ -35,13 +37,18 @@ def precompute_coastline_keypoints(scale_factor=(5, 5)):
     print("output_with_keypoints")
     plt.imshow(output_with_keypoints)
     plt.show()
-    new_filename = f"./monkedir/precomputed_scaled_{scale_factor[0]}_{scale_factor[1]}keypoints.pkl"
+    # new_filename = f"./monkedir/precomputed_scaled_{scale_factor[0]}_{scale_factor[1]}keypoints.pkl"
+    keypoint_filename = os.path.join(
+        "config_files",
+        pass_folder,
+        f"ground_keypoints_{scale_factor[0]: .0f}_{scale_factor[1]: .0f}",
+    )
     with open(
-        new_filename,
+        keypoint_filename,
         "wb",
     ) as file:
         pickle.dump(ground_keypoints.hashable(), file)
-    print(f"Keypoints are saved in {new_filename}")
+    print(f"Keypoints are saved in {keypoint_filename}")
 
 
 def load_precomputed_keypoints(filename) -> Keypoints:
@@ -51,16 +58,16 @@ def load_precomputed_keypoints(filename) -> Keypoints:
     return ground_keypoints
 
 
-def precompute_coastline():
-    base_image = cv2.imread("./monkedir/stacked_rgb.tiff")
+# def precompute_coastline():
+#     base_image = cv2.imread("./monkedir/stacked_rgb.tiff")
 
-    cloud_filter = cloud_mask.cloud_mask(SatImage(image=base_image))
+#     cloud_filter = cloud_mask.cloud_mask(SatImage(image=base_image))
 
-    final_image_data = compute_coastline.compute_coastline(SatImage(image=base_image))
-    final_image_data = final_image_data.data.astype(np.uint8) * 255
-    # TODO create a better compression for the computed coastline
-    cv2.imwrite("./monkedir/precomputed_coastline_rgb_sat.tiff", final_image_data)
+#     final_image_data = compute_coastline.compute_coastline(SatImage(image=base_image))
+#     final_image_data = final_image_data.data.astype(np.uint8) * 255
+#     # TODO create a better compression for the computed coastline
+#     cv2.imwrite("./monkedir/precomputed_coastline_rgb_sat.tiff", final_image_data)
 
 
-def load_precomputed_coastline(filename) -> SatImage:
-    return SatImage(image=cv2.cvtColor(cv2.imread(filename) * 255, cv2.COLOR_BGR2GRAY))
+# def load_precomputed_coastline(filename) -> SatImage:
+#     return SatImage(image=cv2.cvtColor(cv2.imread(filename) * 255, cv2.COLOR_BGR2GRAY))

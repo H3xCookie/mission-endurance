@@ -5,7 +5,7 @@ import numpy as np
 class SatImage:
     def __init__(self, filename=None, image=None, **kwargs):
         """
-        pass either filename= or an image= read by cv2, so an np.ndarray
+        pass either filename= or an image= read by cv2, so an np.ndarray, and optionally a mask=np.ndarray of bools, where True is useable land, and False meand the pixel is a cloud
         """
         if filename is None and image is None:
             print("specify either image=cv2.imread or filename=<fullpath>.tif")

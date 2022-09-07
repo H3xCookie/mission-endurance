@@ -32,7 +32,7 @@ def take_picture(unix_timestamp) -> SatImage:
 
     # subprocess.run(["./src/take_picture.sh"])
     # picture_filename = os.listdir(
-    #     "/work/mission-endurance/sat_captured_images/"
+    #     "./satellite_images/"
     # )[0]
     # rgb_image = take_picture_from_file(picture_filename)
 

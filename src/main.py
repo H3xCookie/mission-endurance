@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+from subprocess import run
 
 import cv2
 import matplotlib.pyplot as plt
@@ -14,7 +15,6 @@ import downlink
 import precompute_coastline
 import read_config_files
 import read_ground_image
-import setup_camera
 import shoot
 from correlate_images import Keypoints
 from sat_image import SatImage
@@ -24,6 +24,9 @@ def sat_main(scale_factor=(5, 5)):
     """
     the main fn which runs on the satellite
     """
+    # the directory where the script will store images
+    run(["mkdir", "./satellite_images"])
+
     parser = argparse.ArgumentParser(description="pass ")
     parser.add_argument("--field_filename", required=True)
     parser.add_argument("--ground_kpts", required=True)
@@ -31,7 +34,6 @@ def sat_main(scale_factor=(5, 5)):
     args = parser.parse_args()
 
     # ===================camera setup================================
-    setup_camera.turn_on_camera()
     time_to_take_picture = read_config_files.time_of_photo(args.time_filename)
 
     # ===================satellite image manupulations==================

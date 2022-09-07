@@ -12,7 +12,7 @@ def send_message_down(message: str):
     # filename = f"transfer_file_{time}.txt"
     # with open(filename, "w") as file:
     #     file.write(message)
-    # run(["./src/transfer_data.sh", filename])
+    # run(["./transfer_data.sh", filename])
     # ===================================
     print(message)
     # testing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

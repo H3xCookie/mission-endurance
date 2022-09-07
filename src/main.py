@@ -1,186 +1,111 @@
 import argparse
+import os
+import sys
 
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
 from communications import downlink
-from image_analysis import indeces, make_decision
 from preprocessing import cloud_mask, precompute_coastline
 from processing import compute_coastline, correlate_images, crop_field
+from processing.correlate_images import Keypoints
+from read_config import read_config_files, read_ground_image
 from time_and_shoot import setup_camera, shoot
 from time_and_shoot.sat_image import SatImage
 
 
-def sat_main():
+def preview_ground_image():
+    gnd_image = cv2.imread("monkedir/ground_image_1_bgr.tiff")
+
+    # already in rgb
+    plt.imshow(np.clip(2 * gnd_image.astype(np.uint16), 0, 255))
+    plt.show()
+
+
+def sat_main(scale_factor=(5, 5)):
     """
     the main fn which runs on the satellite. fiedl coords must
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
-    parser = argparse.ArgumentParser(description="Pass precomputed coastline")
-    parser.add_argument("--computed_coastline", required=True)
-    args = parser.parse_args()
-
-    setup_camera.turn_on_camera()
-    # take picture
-    time_to_take_picture = "2022:09:03,12:00:00,000"
-    print("take picture")
-    sat_image = shoot.take_picture(time_to_take_picture)
-    height, width = sat_image.data.shape[:2]
-
-    # plt.imshow(np.flip(sat_image.data, axis=2))
-    # plt.show()
-    print("sat image h, w: ", height, width)
-    # add mask attribute to the image
-    print("compute cloud mask of picture")
-    # sat_image.mask = cloud_mask.cloud_mask(sat_image)
-    print("compute coastline of picture")
-    sat_coastline = compute_coastline.compute_coastline(sat_image)
-    # x then y coordinate
-
-    good_fields = [
-        [[4335, 2563], [4452, 2691], [4553, 2608], [4444, 2475]],
-        [[3364, 2228], [3394, 2322], [3420, 2231]],
-        [[4631, 2274], [4658, 2188], [4625, 2185], [4586, 2239]],
-    ]
-    bad_fields = [
-        [[2958, 3493], [2964, 3525], [3072, 3471], [3078, 3419]],
-        [[3884, 3464], [3902, 3351], [3800, 3328]],
-        [[4212, 3482], [4215, 3545], [4312, 3488]],
-    ]
-    # good_fields = [
-    #     [[4135, 2130], [4239, 2140], [4321, 2059], [4224, 1931]],
-    #     [[3623, 1791], [3739, 1764], [3710, 1552], [3566, 1562]],
-    # ]
-    # needs to be of shape (n, 1, 2) to be able to be acted on by homography
-    # field_coords_px = np.array(points).reshape((len(points), 1, 2))
-    # # flip because y coord should be before x coord
-    # field_coords_px = np.flip(field_coords_px, axis=2)
-
-    print("load precomputed coastline")
-    computed_coastline = precompute_coastline.load_precomputed_coastline(
-        args.computed_coastline
+    # os.chdir("/work/mission-endurance/")
+    parser = argparse.ArgumentParser(
+        description="Pass the name of the config_folder/pass folder, ex pass_1, and the filename of the keypoints of the ground image, ex config_files/pass_1/ground_keypoints_{scale_factor[0]}_{scale_factor[1]}.pkl"
     )
+    parser.add_argument("--pass_folder", required=True)
+    parser.add_argument("--ground_keypoints", required=True)
+    args = parser.parse_args()
+    pass_folder = args.pass_folder
+
+    # ===================camera setup================================
+    setup_camera.turn_on_camera()
+    time_to_take_picture = read_config_files.time_of_photo(pass_folder)
+    # ===================satellite image manupulations==================
+    sat_image = shoot.take_picture(time_to_take_picture)
+
+    sat_image.mask = cloud_mask.cloud_mask(sat_image)
+    sat_coastline = compute_coastline.compute_coastline(sat_image)
+    sat_coastline_keypoints = correlate_images.get_keypoints(
+        sat_coastline, scale_factor
+    )
+    # =====================ground image manupulations==================
+    field_coords = read_config_files.field_coords(pass_folder)
+
+    print("load precomputed coastline Keypoints")
+    ground_keypoints = read_ground_image.read_ground_keypoints(args.ground_keypoints)
 
     # compute and apply homography to the original sat image
+    # =====================aligning of the sat image==================
     print("compute homography")
-    homography = correlate_images.compute_affine_transform(
-        computed_coastline, sat_coastline
+    align_result = correlate_images.compute_transform_from_keypoints(
+        sat_coastline_keypoints, ground_keypoints
     )
-    # h, w = sat_image.data.shape[:2]
+    homography, align_was_successful = align_result
+    if not align_was_successful:
+        print("cannot continue further")
+        downlink.send_message_down("ALIGN UNSUCCESSFUL")
+        sys.exit("ALIGN UNSUCCESSFUL")
+
     print("warp sat image to ground image")
-    base_h, base_w = computed_coastline.data.shape[:2]
+    base_h, base_w = ground_keypoints.shape
     print("precomputed coastline h, w: ", base_h, base_w)
-    # plt.imshow(sat_image.data)
-    # plt.show()
     sat_image = SatImage(
         image=cv2.warpPerspective(
             sat_image.data, homography, (base_h, base_w), flags=cv2.INTER_NEAREST
         )
     )
-    fig, ax = plt.subplots(2, 3)
-    for index, points in enumerate(good_fields):
+
+    # =========================beam results back====================
+    fig, ax = plt.subplots(1, 2)
+    ground_image = read_ground_image.read_ground_image(pass_folder)
+    for index, points in enumerate([field_coords, field_coords]):
         # pass aligned image and coordinates to image recognition algorithm
-        poly_points = np.flip(np.array(points).reshape((len(points), 2)), axis=1)
+        poly_points = np.flip(points, axis=1)
         polygon = crop_field.Polygon(poly_points)
 
-        print("crop field")
         only_field = crop_field.select_only_field(sat_image, polygon)
-        # compute the Green index of the field
-        print("compute index")
-        green_index = indeces.green_index(only_field)
-
-        downlink.send_message_down(
-            f"{green_index}: {make_decision.is_field_planted(green_index)}"
-        )
-        ax[0][index].imshow(only_field.data)
-
-    for index, points in enumerate(bad_fields):
-        # pass aligned image and coordinates to image recognition algorithm
-        poly_points = np.flip(np.array(points).reshape((len(points), 2)), axis=1)
-        polygon = crop_field.Polygon(poly_points)
-
+        average_color = np.average(only_field.data, axis=(0, 1))
         print("crop field")
-        only_field = crop_field.select_only_field(sat_image, polygon)
-        # compute the Green index of the field
-        print("compute index")
-        green_index = indeces.green_index(only_field)
 
-        downlink.send_message_down(
-            f"{green_index}: {make_decision.is_field_planted(green_index)}"
-        )
-        ax[1][index].imshow(only_field.data)
-    plt.show()
+        if index == 0:
+            only_field = crop_field.select_only_field(ground_image, polygon)
+        else:
+            only_field = crop_field.select_only_field(sat_image, polygon)
 
-
-def presentation_images():
-    """
-    the main fn which runs on the satellite.
-    """
-    # needs to be of shape (n, 1, 2) to be able to be acted on by homography
-    field_coords_px = np.array(
-        [[496, 236], [527, 236], [527, 272], [496, 272]]
-    ).reshape((4, 1, 2))
-    parser = argparse.ArgumentParser(description="Pass precomputed coastline")
-    parser.add_argument("--computed_coastline", required=True)
-    args = parser.parse_args()
-    # plot original and shifted sat image
-    base_image = cv2.imread("./monkedir/base_image_example.tiff")
-    trans_image = cv2.imread("./monkedir/transformed_image.tiff")
-    # fig, (ax1, ax2) = plt.subplots(1, 2)
-    # ax1.imshow(np.flip(base_image, axis=2))
-    # ax2.imshow(np.flip(trans_image, axis=2))
-    # plt.show()
-
-    computed_coastline = SatImage(
-        image=cv2.cvtColor(
-            cv2.imread(args.computed_coastline) * 255, cv2.COLOR_BGR2GRAY
-        )
-    )
-
-    time_to_take_picture = "2022:09:03,12:00:00,000"
-    sat_image = shoot.take_picture(time_to_take_picture)
-    sat_image = cloud_mask.mask_clouds(sat_image)
-    sat_coastline = compute_coastline.compute_coastline(sat_image)
-    # fig, (ax1, ax2) = plt.subplots(1, 2)
-    # ax1.imshow(computed_coastline.data)
-    # ax2.imshow(sat_coastline.data)
-    # plt.show()
-
-    homography = correlate_images.compute_affine_transform(
-        computed_coastline, sat_coastline
-    )
-    # apply homography to the original sat image
-    h, w = sat_image.data.shape[:2]
-    back_transformed_sat_image = cv2.warpPerspective(
-        sat_image.data, homography, (w, h), flags=cv2.INTER_NEAREST
-    )
-
-    fig, (ax1, ax2) = plt.subplots(1, 2)
-    base_image_bgr = cv2.imread("./monkedir/base_image_example.tiff")
-    ax1.imshow(np.flip(base_image_bgr, axis=2))
-    ax2.imshow(np.flip(sat_image.data, axis=2))
-
-    # compute the coordinates of the other field
-    transformed_coords = cv2.perspectiveTransform(
-        field_coords_px.astype(np.float32), np.linalg.inv(homography)
-    )
-    n = len(field_coords_px)
-    for i in range(n):
-        ax1.plot(
-            [field_coords_px[i, 0, 0], field_coords_px[(i + 1) % n, 0, 0]],
-            [field_coords_px[i, 0, 1], field_coords_px[(i + 1) % n, 0, 1]],
-            color="red",
-        )
-        ax2.plot(
-            [transformed_coords[i, 0, 0], transformed_coords[(i + 1) % n, 0, 0]],
-            [transformed_coords[i, 0, 1], transformed_coords[(i + 1) % n, 0, 1]],
-            color="red",
+        # downlink.send_message_down(f"{green_index}: {is_planted}")
+        ax[index].imshow(
+            np.clip(
+                np.flip(only_field.data, axis=2).astype(np.float16) * 1.5, 0, 255
+            ).astype(np.uint8)
         )
 
     plt.show()
 
 
 if __name__ == "__main__":
-    # precompute_coastline.precompute_coastline()
-    sat_main()
+    # preview_ground_image()
+    scale_factor = (10, 10)
+    precompute_coastline.precompute_coastline_keypoints(
+        "config_files/2022-09-08T11_58_04", scale_factor
+    )
+    sat_main(scale_factor)

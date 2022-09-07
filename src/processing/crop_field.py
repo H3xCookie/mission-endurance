@@ -2,6 +2,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from time_and_shoot.sat_image import SatImage
 
 
@@ -55,7 +56,9 @@ def select_only_field(sat_image: SatImage, polygon: Polygon) -> MLModelInput:
         normal_vec[0], normal_vec[1] = -r[1], r[0]
         final_arr &= np.dot(coords - points[i], normal_vec) > 0
 
-    return sat_image.data[miny:maxy, minx:maxx, :] * final_arr[:, :, np.newaxis]
+    return MLModelInput(
+        data=sat_image.data[miny:maxy, minx:maxx, :] * final_arr[:, :, np.newaxis]
+    )
 
 
 def filter_polygon(begin_array_shape, polygon: Polygon) -> np.ndarray:

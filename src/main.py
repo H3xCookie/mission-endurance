@@ -110,7 +110,5 @@ def sat_main(scale_factor=(5, 5)):
 if __name__ == "__main__":
     # preview_ground_image()
     scale_factor = (10, 10)
-    precompute_coastline.precompute_coastline_keypoints(
-        "config_files/2022-09-08T11_58_04", scale_factor
-    )
+    precompute_coastline.precompute_coastline_keypoints(scale_factor)
     sat_main(scale_factor)

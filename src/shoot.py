@@ -39,7 +39,7 @@ def take_picture(unix_timestamp) -> SatImage:
     # return SatImage(image=np.flip(rgb_image.data, axis=2))
 
     print(f"should take a picture in {unix_timestamp}")
-    filename = "./monkedir/rotated_namibia_picture.tiff"
+    filename = "./remove_this_dir/rotated_namibia_picture.tiff"
     print(f"the satellite image is {filename}")
     # flip picture since it is already in bgr
     picture = take_picture_from_file(filename)

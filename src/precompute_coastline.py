@@ -5,7 +5,6 @@ import dill as pickle
 import matplotlib.pyplot as plt
 import numpy as np
 
-import cloud_mask
 import compute_coastline
 import correlate_images
 import read_ground_image
@@ -13,7 +12,7 @@ from correlate_images import Keypoints
 from sat_image import SatImage
 
 
-def precompute_coastline_keypoints(pass_folder, scale_factor=(5, 5)):
+def precompute_coastline_keypoints(scale_factor=(5, 5)):
     ground_coastline = read_ground_image.read_ground_image()
     ground_coastline = compute_coastline.compute_coastline(ground_coastline)
     ground_keypoints = correlate_images.get_keypoints(ground_coastline, scale_factor)

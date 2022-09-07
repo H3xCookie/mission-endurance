@@ -5,17 +5,12 @@ from subprocess import run
 import read_config_files
 
 if __name__ == "__main__":
-    job_path = "J000001"
+    job_path = "J001001"
     passes = {
         "pass_1": {
             "time_filename": "Time_1.txt",
             "field_filename": "field_coords_1.csv",
             "ground_kpts": "ground_keypoints_10_10_1.pkl",
-        },
-        "pass_2": {
-            "time_filename": "Time_2.txt",
-            "field_filename": "field_coords_2.csv",
-            "ground_kpts": "ground_keypoints_10_10_2.pkl",
         },
     }
     passes_in_future = []

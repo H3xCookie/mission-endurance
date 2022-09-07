@@ -6,13 +6,18 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-from communications import downlink
-from preprocessing import cloud_mask, precompute_coastline
-from processing import compute_coastline, correlate_images, crop_field
-from processing.correlate_images import Keypoints
-from read_config import read_config_files, read_ground_image
-from time_and_shoot import setup_camera, shoot
-from time_and_shoot.sat_image import SatImage
+import cloud_mask
+import compute_coastline
+import correlate_images
+import crop_field
+import downlink
+import precompute_coastline
+import read_config_files
+import read_ground_image
+import setup_camera
+import shoot
+from correlate_images import Keypoints
+from sat_image import SatImage
 
 
 def preview_ground_image():
@@ -25,21 +30,18 @@ def preview_ground_image():
 
 def sat_main(scale_factor=(5, 5)):
     """
-    the main fn which runs on the satellite. fiedl coords must
-    be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
+    the main fn which runs on the satellite
     """
     # os.chdir("/work/mission-endurance/")
-    parser = argparse.ArgumentParser(
-        description="Pass the name of the config_folder/pass folder, ex pass_1, and the filename of the keypoints of the ground image, ex config_files/pass_1/ground_keypoints_{scale_factor[0]}_{scale_factor[1]}.pkl"
-    )
-    parser.add_argument("--pass_folder", required=True)
-    parser.add_argument("--ground_keypoints", required=True)
+    parser = argparse.ArgumentParser(description="pass ")
+    parser.add_argument("--field_filename", required=True)
+    parser.add_argument("--ground_kpts", required=True)
+    parser.add_argument("--time_filename", required=True)
     args = parser.parse_args()
-    pass_folder = args.pass_folder
 
     # ===================camera setup================================
     setup_camera.turn_on_camera()
-    time_to_take_picture = read_config_files.time_of_photo(pass_folder)
+    time_to_take_picture = read_config_files.time_of_photo(args.time_filename)
 
     # ===================satellite image manupulations==================
     sat_image = shoot.take_picture(time_to_take_picture)
@@ -50,9 +52,9 @@ def sat_main(scale_factor=(5, 5)):
     )
 
     # =====================ground image manupulations==================
-    field_coords = read_config_files.field_coords(pass_folder)
+    field_coords = read_config_files.field_coords(args.field_filename)
     print("load precomputed coastline Keypoints")
-    ground_keypoints = read_ground_image.read_ground_keypoints(args.ground_keypoints)
+    ground_keypoints = read_ground_image.read_ground_keypoints(args.ground_kpts)
 
     # =====================aligning of the sat image==================
     print("compute homography")
@@ -74,20 +76,23 @@ def sat_main(scale_factor=(5, 5)):
         )
     )
 
-    # =========================beam results back====================
+    # # =========================beam results back(for the sat)====================
+    # # pass aligned image and coordinates to image recognition algorithm
+    # poly_points = np.flip(field_coords, axis=1)
+    # polygon = crop_field.Polygon(poly_points)
+
+    # # code for the sat
+    # only_field = crop_field.select_only_field(sat_image, polygon)
+    # average_color = np.average(only_field.data, axis=(0, 1))
+    # downlink.send_message_down(str(average_color))
+
+    # ==================testing, remove before flight==================
     fig, ax = plt.subplots(1, 2)
-    ground_image = read_ground_image.read_ground_image(pass_folder)
+    ground_image = read_ground_image.read_ground_image()
     for index, points in enumerate([field_coords, field_coords]):
-        # pass aligned image and coordinates to image recognition algorithm
         poly_points = np.flip(points, axis=1)
         polygon = crop_field.Polygon(poly_points)
 
-        # code for the sat
-        # only_field = crop_field.select_only_field(sat_image, polygon)
-        # average_color = np.average(only_field.data, axis=(0, 1))
-        # downlink.send_message_down(str(average_color))
-
-        # code for testing, remove before flight
         if index == 0:
             only_field = crop_field.select_only_field(ground_image, polygon)
         else:

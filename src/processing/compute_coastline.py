@@ -4,9 +4,14 @@ import numpy as np
 from time_and_shoot.sat_image import SatImage
 
 
-def blue_index(bgr) -> np.ndarray:
+def blue_index(bgr: np.ndarray) -> np.ndarray:
+    """
+    receives the data of the SatImage as a np.ndarray and calculates a blueness value
+    """
+    plt.imshow(bgr[:, :, 2] == 0)
+    plt.show()
     new_color = bgr.astype(np.float16)
-    final_arr = new_color[:, 0] / (new_color[:, 2] + new_color[:, 1])
+    final_arr = new_color[:, :, 0] / (new_color[:, :, 2] + new_color[:, :, 1])
 
     # return final_arr
     return np.nan_to_num(final_arr, nan=-1, posinf=-1, neginf=-1).astype(np.float16)
@@ -19,29 +24,29 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
     image = sat_image.data
     height, width = image.shape[:2]
 
-    blue_values = blue_index(image.reshape((height * width, 3)))
+    blue_values = blue_index(image)
     max_value = np.quantile(blue_values, 0.98)
-    blue_values = np.clip(blue_values.astype(np.float16) * 254.0 / max_value, 0, 255)
+    blue_values = np.clip(blue_values * 254.0 / max_value, 0, 255)
     blue_values = blue_values.astype(np.uint8)
     # plt.hist(blue_values, bins=100)
     # plt.show()
 
     filter_size = max(5, int(int(0.01 * height) / 2) * 2 + 1)
     print(filter_size)
-    blueness_image = cv2.GaussianBlur(
-        blue_values.reshape((height, width)),
+    blue_values = cv2.GaussianBlur(
+        blue_values,
         (filter_size, filter_size),
         0,
     )
     _, coastline_mask = cv2.threshold(
-        blueness_image, 0, 1, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+        blue_values, 0, 1, cv2.THRESH_BINARY + cv2.THRESH_OTSU
     )
 
     coastline_mask = coastline_mask.astype(bool)
 
     # coastline_mask = ~coastline_mask
-    plt.imshow(coastline_mask)
-    plt.show()
+    # plt.imshow(coastline_mask)
+    # plt.show()
     return SatImage(image=coastline_mask, mask=sat_image.mask)
 
 

@@ -27,8 +27,9 @@ def time_of_photo(pass_folder):
     """
     returns the utc timestamp in seconds
     """
-    file = os.path.join(pass_folder, "Time.txt")
-    with open(file, "r") as time_file:
-        line = time_file.readline()
+    # file = os.path.join(pass_folder, "Time.txt")
+    # with open(file, "r") as time_file:
+    #     line = time_file.readline()
 
-    return float(line)
+    # return float(line)
+    return 10**7

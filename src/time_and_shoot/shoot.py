@@ -2,7 +2,7 @@ import datetime
 import os
 import subprocess
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 
 import numpy as np
 
@@ -22,8 +22,7 @@ def take_picture(unix_timestamp) -> SatImage:
     A fucntion which interfaces with the camera of the satellite and returns a picture. It returns the image in BGR format, so SatImage.data[0] is the blue band
     returns: A `SatImage` class, which wraps around the tif produced by the satellite
     """
-    # TODO test
-    # approx time it takes for the sat to take a photo
+    # TODO test; approx time it takes for the sat to take a photo
     # time_delay = 4
     # # the unix time in seconds
     # print(datetime.utcnow().timestamp())
@@ -34,7 +33,11 @@ def take_picture(unix_timestamp) -> SatImage:
     # picture_filename = os.listdir(
     #     "/work/mission-endurance/monkedir/sat_captured_images/"
     # )[0]
-    # return take_picture_from_file(picture_filename)
+    # rgb_image = take_picture_from_file(picture_filename)
+
+    # # flip it because the satellite gives images in RGB and all the code works with BGR
+    # return SatImage(image=np.flip(rgb_image.data, axis=2))
+
     print(f"should take a picture in {unix_timestamp}")
     filename = "./monkedir/rotated_namibia_picture.tiff"
     print(f"the satellite image is {filename}")

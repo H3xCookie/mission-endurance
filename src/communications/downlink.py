@@ -1,10 +1,11 @@
 import datetime
 from subprocess import run
 
+
 def send_message_down(message: str):
     print("transfering files to /work/transfer")
     time = datetime.datetime.now()
-    time_date, time_time = str(time).split(" ") 
+    time_date, time_time = str(time).split(" ")
     time = f"{time_date}T{time_time}"
     time = time.replace(":", "_")
     time = time.replace(".", "_")

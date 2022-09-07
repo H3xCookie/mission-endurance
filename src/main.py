@@ -40,21 +40,20 @@ def sat_main(scale_factor=(5, 5)):
     # ===================camera setup================================
     setup_camera.turn_on_camera()
     time_to_take_picture = read_config_files.time_of_photo(pass_folder)
+
     # ===================satellite image manupulations==================
     sat_image = shoot.take_picture(time_to_take_picture)
-
     sat_image.mask = cloud_mask.cloud_mask(sat_image)
     sat_coastline = compute_coastline.compute_coastline(sat_image)
     sat_coastline_keypoints = correlate_images.get_keypoints(
         sat_coastline, scale_factor
     )
+
     # =====================ground image manupulations==================
     field_coords = read_config_files.field_coords(pass_folder)
-
     print("load precomputed coastline Keypoints")
     ground_keypoints = read_ground_image.read_ground_keypoints(args.ground_keypoints)
 
-    # compute and apply homography to the original sat image
     # =====================aligning of the sat image==================
     print("compute homography")
     align_result = correlate_images.compute_transform_from_keypoints(
@@ -62,7 +61,7 @@ def sat_main(scale_factor=(5, 5)):
     )
     homography, align_was_successful = align_result
     if not align_was_successful:
-        print("cannot continue further")
+        print("cannot continue further, bad align")
         downlink.send_message_down("ALIGN UNSUCCESSFUL")
         sys.exit("ALIGN UNSUCCESSFUL")
 
@@ -83,16 +82,17 @@ def sat_main(scale_factor=(5, 5)):
         poly_points = np.flip(points, axis=1)
         polygon = crop_field.Polygon(poly_points)
 
-        only_field = crop_field.select_only_field(sat_image, polygon)
-        average_color = np.average(only_field.data, axis=(0, 1))
-        print("crop field")
+        # code for the sat
+        # only_field = crop_field.select_only_field(sat_image, polygon)
+        # average_color = np.average(only_field.data, axis=(0, 1))
+        # downlink.send_message_down(str(average_color))
 
+        # code for testing, remove before flight
         if index == 0:
             only_field = crop_field.select_only_field(ground_image, polygon)
         else:
             only_field = crop_field.select_only_field(sat_image, polygon)
 
-        # downlink.send_message_down(f"{green_index}: {is_planted}")
         ax[index].imshow(
             np.clip(
                 np.flip(only_field.data, axis=2).astype(np.float16) * 1.5, 0, 255

@@ -24,9 +24,14 @@ We, Sky-Lens (Endurance Team 1), want to use this opportunuty to demonstrate on 
 
 First we pick a field next to a coastline, for easier correlation of coordinate systems. We compute the coastline for the same area from an image on Earth. We take note of the corners of this field in the coordinate system of the Earth photo. Let this system be $E$. In $E$ we compute the coordinates of the coastline, and send some identifiable features, such as corners, and send them to space. Once the satellite takes a photo, it detects clouds and computes the coastline on its photo, using the same algorithm. Then we determine the affine transformation which takes $P$ to $E$, which maps the Platform-1 coastline to the coastline we precomputed on Earth. Then we transform the Platform-1 image using this transformation. This has the effect of aligning the satellite image with the one on Earth. Then we can use the field coordinates in $E$, and compute an index based on the average color of the field. Since this index is correlated with how much vegetation there is on the field, based on its value we can determine whether the field has crops planted on it. Then the satellite beams that information back to earth.
 
-## Example usage
-
 ## Software modules
+
+### `config_scripts/`
+
+Contains the config files which tell the satellite which field it should image, at what time the program should take a picture and which coastline file should it use. Each pass is a folder with the UTC time of the pass above Bulgaria, and must contain
+1. A `field_coords.csv` file which contains the coordinates of each corner of the field in the form `x, y`, in the coordinate system $E$ of the ground picture. The field coordinates should be specified in a counter-clockwise direction if $x$ is right and $y$ is down.
+2. A `Time.txt` file, which specifies the time in UTC at which we should take a picture.
+3. A `ground_keypoints_{xx}_{xx}.pkl` file which contains the pickled `Keypoints` object for the ground image. It is produced by the `precompute_coastline/precompute_coastline_keypoints` function. The `xx` is the scale factor using which the image was scaled before calculating the keypoints, usually $xx=10$.
 
 ### `scripts`
 
@@ -48,6 +53,10 @@ Takes as an `--ground_keypoints` input the pickled points (`.pkl`), which have b
 5. Compute a "greenness" index, based on which we decide whether the field is planted or not.
 6. Send the result back to Earth
 
+### `read_config`
+
+Reads the `config_files` directory containing information for each pass in separate folders. `read_config/read_config_files.py` has functions dealing with configuration files such as coordinates of the field and the exact time at which we need to take a picture.
+
 ### `time_and_shoot`
 
 Recieves the time at which is should shoot the image, waits unitl the time comes and takes a picture. It also provides the `SatImage` class, which wraps all other images in the code. 
@@ -59,10 +68,6 @@ Removes cloud cover and loads the precomputed coastline keypoints. The keypoints
 ### `processing`
 
 Computes the coastline on the satellite as an identifiable feature, correlates it with features of the precomputed coastline which is already on the sat and determines the homography between the Platform-1 photo and the one on the ground. It performs this homography on the Platform-1 image to get an aligned image, whose features coincide with the ones on the picture on the ground. It crops a polygon corresponding to the field of interest out of the satellite picture, in order to easily pass it around to the decision making module.
-
-### `image_analysis`
-
-Analyses the filtered image (where all the points outside the field are blackened). It tries to determine whether something is planted on the field. Provides a "greenness" index based on the bands of the image, equal to $I = \frac{RED - GREEN}{GREEN - BLUE}$. The higher the index, the higher the chance a field is planted.
 
 ### `communications`
 

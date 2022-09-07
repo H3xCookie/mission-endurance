@@ -1,0 +1,22 @@
+jobid: J001001
+runtime: rpi
+type: python
+script: start.py
+files:
+  cloud_mask.py
+  compute_coastline.py
+  correlate_images.py
+  crop_field.py
+  downlink.py
+  field_coords_1.csv
+  ground_keypoints_10_10_1.pkl
+  main.py
+  precompute_coastline.py
+  read_config_files.py
+  read_ground_image.py
+  sat_image.py
+  shoot.py
+  start.py
+  Time_1.txt
+  transfer_data.sh
+timeout: 1200

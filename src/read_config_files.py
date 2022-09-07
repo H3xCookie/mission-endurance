@@ -11,14 +11,10 @@ def field_coords(field_coords_filename):
     with open(field_coords_filename, "r") as file:
         lines = file.readlines()
     coords_array = []
-    print(f"the number of points is {len(lines)}")
-    print(lines)
     for line in lines:
         x, y = line.split(",")[:2]
         coords_array.append([int(x), int(y)])
     coords_array = np.array(coords_array)
-    print("field coords shape:")
-    print(coords_array.shape)
     return coords_array
 
 
@@ -30,4 +26,3 @@ def time_of_photo(time_filename):
         line = time_file.readline()
 
     return float(line)
-    # return 10**7

@@ -40,4 +40,3 @@ def precompute_coastline_keypoints(scale_factor=(5, 5)):
         "wb",
     ) as file:
         pickle.dump(ground_keypoints.hashable(), file)
-    print(f"Keypoints are saved in {keypoint_filename}")

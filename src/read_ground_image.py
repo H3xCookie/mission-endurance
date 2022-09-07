@@ -23,5 +23,4 @@ def read_ground_image() -> SatImage:
 def read_ground_keypoints(filename) -> Keypoints:
     with open(filename, "rb") as file:
         ground_keypoints = Keypoints(from_hash=True, hash_object=pickle.load(file))
-    print(f"loaded ground image Keypoints of image with shape {ground_keypoints.shape}")
     return ground_keypoints

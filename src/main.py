@@ -20,14 +20,6 @@ from correlate_images import Keypoints
 from sat_image import SatImage
 
 
-def preview_ground_image():
-    gnd_image = cv2.imread("monkedir/ground_image_1_bgr.tiff")
-
-    # already in rgb
-    plt.imshow(np.clip(2 * gnd_image.astype(np.uint16), 0, 255))
-    plt.show()
-
-
 def sat_main(scale_factor=(5, 5)):
     """
     the main fn which runs on the satellite
@@ -53,11 +45,9 @@ def sat_main(scale_factor=(5, 5)):
 
     # =====================ground image manupulations==================
     field_coords = read_config_files.field_coords(args.field_filename)
-    print("load precomputed coastline Keypoints")
     ground_keypoints = read_ground_image.read_ground_keypoints(args.ground_kpts)
 
     # =====================aligning of the sat image==================
-    print("compute homography")
     align_result = correlate_images.compute_transform_from_keypoints(
         sat_coastline_keypoints, ground_keypoints
     )
@@ -67,9 +57,7 @@ def sat_main(scale_factor=(5, 5)):
         downlink.send_message_down("ALIGN UNSUCCESSFUL")
         sys.exit("ALIGN UNSUCCESSFUL")
 
-    print("warp sat image to ground image")
     base_h, base_w = ground_keypoints.shape
-    print("precomputed coastline h, w: ", base_h, base_w)
     sat_image = SatImage(
         image=cv2.warpPerspective(
             sat_image.data, homography, (base_h, base_w), flags=cv2.INTER_NEAREST

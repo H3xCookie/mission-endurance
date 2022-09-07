@@ -89,7 +89,6 @@ def compute_transform_from_keypoints(
     Returns: (homography, align_was_successful)
     """
     # match the features
-    print("matching keypoints")
     kpsA, descA = sat_keypoints.kpts, sat_keypoints.desc
     kpsB, descB = ground_keypoints.kpts, ground_keypoints.desc
     matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
@@ -100,7 +99,7 @@ def compute_transform_from_keypoints(
     keep = int(len(matches) * 0.8)
     matches = matches[:keep]
     n_matches = len(matches)
-    print(f"Number of matches: {n_matches}")
+    print(f"Found {n_matches} good matches")
 
     p1 = np.zeros((n_matches, 2))
     p2 = np.zeros((n_matches, 2))

@@ -63,8 +63,8 @@ def sat_main(scale_factor=(5, 5)):
     homography, align_was_successful = align_result
     if not align_was_successful:
         print("cannot continue further")
-        downlink.send_message_down(f"ALIGN UNSUCCESSFUL")
-        # sys.exit("ALIGN UNSUCCESSFUL")
+        downlink.send_message_down("ALIGN UNSUCCESSFUL")
+        sys.exit("ALIGN UNSUCCESSFUL")
 
     print("warp sat image to ground image")
     base_h, base_w = ground_keypoints.shape

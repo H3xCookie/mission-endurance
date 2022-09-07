@@ -59,37 +59,3 @@ def select_only_field(sat_image: SatImage, polygon: Polygon) -> MLModelInput:
     return MLModelInput(
         data=sat_image.data[miny:maxy, minx:maxx, :] * final_arr[:, :, np.newaxis]
     )
-
-
-# def filter_polygon(begin_array_shape, polygon: Polygon) -> np.ndarray:
-#     minx, maxx, miny, maxy = polygon.polygon_range()
-#     points = polygon.points
-#     n = int(points.shape[0])
-#     coords = np.array(
-#         np.meshgrid(
-#             np.arange(start=miny, stop=maxy),
-#             np.arange(start=minx, stop=maxx),
-#             indexing="ij",
-#         ),
-#         dtype=np.uint16,
-#     )
-#     # coords = np.array(
-#     #     np.meshgrid(
-#     #         np.arange(begin_array_shape[0]),
-#     #         np.arange(begin_array_shape[1]),
-#     #         indexing="ij",
-#     #     ),
-#     #     dtype=np.uint16,
-#     # )
-#     coords = np.moveaxis(coords, 0, 2)
-#     final_arr = np.ones(coords.shape[:2], dtype=bool)
-
-#     for i in range(n):
-#         i1 = (i + 1) % n
-#         r = points[i1] - points[i]
-#         # rotation counter-clockwise by 90 degrees
-#         normal_vec = np.zeros((2,))
-#         normal_vec[0], normal_vec[1] = -r[1], r[0]
-#         final_arr &= np.dot(coords - points[i], normal_vec) > 0
-
-#     return final_arr

@@ -12,8 +12,7 @@ def blue_index(bgr: np.ndarray) -> np.ndarray:
     new_color = bgr.astype(np.float16)
     final_arr = new_color[:, :, 0] / (new_color[:, :, 2] + new_color[:, :, 1] + 0.00001)
 
-    # return final_arr
-    return np.nan_to_num(final_arr, nan=-1, posinf=-1, neginf=-1).astype(np.float16)
+    return final_arr
 
 
 def compute_coastline(sat_image: SatImage) -> SatImage:

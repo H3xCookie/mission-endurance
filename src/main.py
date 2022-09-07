@@ -24,7 +24,6 @@ def sat_main(scale_factor=(5, 5)):
     """
     the main fn which runs on the satellite
     """
-    # os.chdir("/work/mission-endurance/")
     parser = argparse.ArgumentParser(description="pass ")
     parser.add_argument("--field_filename", required=True)
     parser.add_argument("--ground_kpts", required=True)
@@ -64,6 +63,7 @@ def sat_main(scale_factor=(5, 5)):
         )
     )
 
+    # satellite >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     # # =========================beam results back(for the sat)====================
     # # pass aligned image and coordinates to image recognition algorithm
     # poly_points = np.flip(field_coords, axis=1)
@@ -74,6 +74,7 @@ def sat_main(scale_factor=(5, 5)):
     # average_color = np.average(only_field.data, axis=(0, 1))
     # downlink.send_message_down(str(average_color))
 
+    # =========================================================================================
     # ==================testing, remove before flight==================
     fig, ax = plt.subplots(1, 2)
     ground_image = read_ground_image.read_ground_image()
@@ -93,10 +94,10 @@ def sat_main(scale_factor=(5, 5)):
         )
 
     plt.show()
+    # testing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 if __name__ == "__main__":
-    # preview_ground_image()
     scale_factor = (10, 10)
-    precompute_coastline.precompute_coastline_keypoints(scale_factor)
+    # precompute_coastline.precompute_coastline_keypoints(scale_factor)
     sat_main(scale_factor)

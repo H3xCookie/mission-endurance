@@ -17,21 +17,24 @@ def precompute_coastline_keypoints(scale_factor=(5, 5)):
     ground_coastline = compute_coastline.compute_coastline(ground_coastline)
     ground_keypoints = correlate_images.get_keypoints(ground_coastline, scale_factor)
     print("Keypoints: ", len(ground_keypoints.kpts))
-    # output_with_keypoints = cv2.cvtColor(
-    #     ground_coastline.data.astype(np.uint8) * 255, cv2.COLOR_GRAY2RGB
-    # )
-    # for kp in ground_keypoints.kpts:
-    #     x, y = kp.pt
-    #     cv2.circle(
-    #         output_with_keypoints,
-    #         (int(x), int(y)),
-    #         15,
-    #         color=(255, 0, 0),
-    #         thickness=-1,
-    #     )
-    # print("output_with_keypoints")
-    # plt.imshow(output_with_keypoints)
-    # plt.show()
+    # satellite >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ===============================================================
+    output_with_keypoints = cv2.cvtColor(
+        ground_coastline.data.astype(np.uint8) * 255, cv2.COLOR_GRAY2RGB
+    )
+    for kp in ground_keypoints.kpts:
+        x, y = kp.pt
+        cv2.circle(
+            output_with_keypoints,
+            (int(x), int(y)),
+            15,
+            color=(255, 0, 0),
+            thickness=-1,
+        )
+    print("output_with_keypoints")
+    plt.imshow(output_with_keypoints)
+    plt.show()
+    # testing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     keypoint_filename = (
         f"ground_keypoints_{scale_factor[0]:.0f}_{scale_factor[1]:.0f}.pkl"
     )

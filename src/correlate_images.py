@@ -114,7 +114,6 @@ def compute_transform_from_keypoints(
     main_diagonal = stretch_matrix[0, 0] * stretch_matrix[1, 1]
     rev_diagonal = stretch_matrix[0, 1] * stretch_matrix[1, 0]
     determinant = main_diagonal - rev_diagonal
-    # if abs(determinant - 1) > 0.3:
     if abs(np.dot(stretch_matrix[:, 0], stretch_matrix[:, 1]) / determinant > 0.2):
         print("ALERT!!!!!!!!!!")
         print("correlation of images failed")

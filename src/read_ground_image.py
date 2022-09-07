@@ -9,6 +9,8 @@ from correlate_images import Keypoints
 from sat_image import SatImage
 
 
+# satellite >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# ===================================================================
 def read_ground_image() -> SatImage:
     """
     returns a SatImage of the image we have on the ground. THIS FN SHOULD NOT BE IN SPACE
@@ -18,6 +20,9 @@ def read_ground_image() -> SatImage:
     default_image = SatImage(image=np.flip(cv2.imread(image_filename), axis=2))
     default_image.mask = cloud_mask.cloud_mask(default_image)
     return default_image
+
+
+# testing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 def read_ground_keypoints(filename) -> Keypoints:

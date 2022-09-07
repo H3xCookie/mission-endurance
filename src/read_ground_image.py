@@ -15,7 +15,7 @@ def read_ground_image() -> SatImage:
     """
     returns a SatImage of the image we have on the ground. THIS FN SHOULD NOT BE IN SPACE
     """
-    image_filename = os.path.join("remove_this_dir", "ground_image.tiff")
+    image_filename = os.path.join("stacked_pass_2.tiff")
     # flip because the image is already in bgr
     default_image = SatImage(image=np.flip(cv2.imread(image_filename), axis=2))
     default_image.mask = cloud_mask.cloud_mask(default_image)

@@ -16,7 +16,7 @@ from time_and_shoot.sat_image import SatImage
 
 
 def preview_ground_image():
-    gnd_image = cv2.imread("monkedir/ground_image_1_bgr.tiff")
+    gnd_image = cv2.imread("")
 
     # already in rgb
     plt.imshow(np.clip(2 * gnd_image.astype(np.uint16), 0, 255))
@@ -28,7 +28,6 @@ def sat_main(scale_factor=(5, 5)):
     the main fn which runs on the satellite. fiedl coords must
     be in the form (x, y), and be in counter-clockwise direction in the coordinate system of the image(x right, y down).
     """
-    # os.chdir("/work/mission-endurance/")
     parser = argparse.ArgumentParser(
         description="Pass the name of the config_folder/pass folder, ex pass_1, and the filename of the keypoints of the ground image, ex config_files/pass_1/ground_keypoints_{scale_factor[0]}_{scale_factor[1]}.pkl"
     )
@@ -38,16 +37,38 @@ def sat_main(scale_factor=(5, 5)):
     pass_folder = args.pass_folder
 
     # ===================camera setup================================
-    setup_camera.turn_on_camera()
     time_to_take_picture = read_config_files.time_of_photo(pass_folder)
+
     # ===================satellite image manupulations==================
     sat_image = shoot.take_picture(time_to_take_picture)
-
+    plt.imshow(np.flip(sat_image.data, axis=2))
+    plt.suptitle("Satellite image")
+    plt.show()
     sat_image.mask = cloud_mask.cloud_mask(sat_image)
     sat_coastline = compute_coastline.compute_coastline(sat_image)
+    plt.imshow(sat_coastline.data)
+    plt.suptitle("Satellite coastline")
+    plt.show()
     sat_coastline_keypoints = correlate_images.get_keypoints(
         sat_coastline, scale_factor
     )
+
+    sat_output_with_keypoints = cv2.cvtColor(
+        sat_coastline.data.astype(np.uint8) * 255, cv2.COLOR_GRAY2RGB
+    )
+    for kp in sat_coastline_keypoints.kpts:
+        x, y = kp.pt
+        cv2.circle(
+            sat_output_with_keypoints,
+            (int(x), int(y)),
+            15,
+            color=(255, 0, 0),
+            thickness=-1,
+        )
+    print("output_with_keypoints")
+    plt.imshow(sat_output_with_keypoints)
+    plt.suptitle("Satellite coastline with keypoints")
+    plt.show()
     # =====================ground image manupulations==================
     field_coords = read_config_files.field_coords(pass_folder)
 
@@ -105,7 +126,7 @@ def sat_main(scale_factor=(5, 5)):
 if __name__ == "__main__":
     # preview_ground_image()
     scale_factor = (10, 10)
-    precompute_coastline.precompute_coastline_keypoints(
-        "config_files/2022-09-08T11_58_04", scale_factor
-    )
+    # precompute_coastline.precompute_coastline_keypoints(
+    #     "config_files/2022-09-08T11_58_04", scale_factor
+    # )
     sat_main(scale_factor)

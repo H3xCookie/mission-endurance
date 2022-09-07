@@ -1,8 +1,8 @@
 import datetime
 import os
 import subprocess
-from datetime import timezone
-from time import sleep
+import time
+from datetime import datetime, timezone
 
 import numpy as np
 
@@ -17,31 +17,25 @@ def take_picture_from_file(filename) -> SatImage:
     return SatImage(filename=filename)
 
 
-def utc_timestamp():
-    return (
-        datetime.datetime.now(datetime.timezone.utc)
-        .replace(tzinfo=timezone.utc)
-        .timestamp()
-    )
-
-
-def take_picture(utc_time_for_picture) -> SatImage:
+def take_picture(unix_timestamp) -> SatImage:
     """
     A fucntion which interfaces with the camera of the satellite and returns a picture. It returns the image in BGR format, so SatImage.data[0] is the blue band
-
     returns: A `SatImage` class, which wraps around the tif produced by the satellite
     """
     # TODO test
-    # # approx time it takes for the sat to take a photo
+    # approx time it takes for the sat to take a photo
     # time_delay = 4
-    # while utc_timestamp() < utc_time_for_picture - time_delay:
-    #     sleep(0.5)
+    # # the unix time in seconds
+    # print(datetime.utcnow().timestamp())
+    # while datetime.utcnow().timestamp() < unix_timestamp - time_delay:
+    #     time.sleep(0.5)
 
     # subprocess.run(["./src/take_picture.sh"])
     # picture_filename = os.listdir(
     #     "/work/mission-endurance/monkedir/sat_captured_images/"
     # )[0]
     # return take_picture_from_file(picture_filename)
+    print(f"should take a picture in {unix_timestamp}")
     filename = "./monkedir/rotated_namibia_picture.tiff"
     print(f"the satellite image is {filename}")
     # flip picture since it is already in bgr

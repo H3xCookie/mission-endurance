@@ -21,3 +21,14 @@ def field_coords(pass_folder):
     print("field coords shape:")
     print(coords_array.shape)
     return coords_array
+
+
+def time_of_photo(pass_folder):
+    """
+    returns the utc timestamp in seconds
+    """
+    file = os.path.join(pass_folder, "Time.txt")
+    with open(file, "r") as time_file:
+        line = time_file.readline()
+
+    return float(line)

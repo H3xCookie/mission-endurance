@@ -39,7 +39,7 @@ def sat_main(scale_factor=(5, 5)):
 
     # ===================camera setup================================
     setup_camera.turn_on_camera()
-    time_to_take_picture = "2022:09:03,12:00:00,000"
+    time_to_take_picture = read_config_files.time_of_photo(pass_folder)
     # ===================satellite image manupulations==================
     sat_image = shoot.take_picture(time_to_take_picture)
 

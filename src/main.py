@@ -12,7 +12,6 @@ import compute_coastline
 import correlate_images
 import crop_field
 import downlink
-import precompute_coastline
 import read_config_files
 import read_ground_image
 import shoot
@@ -24,8 +23,6 @@ def sat_main(scale_factor=(5, 5)):
     """
     the main fn which runs on the satellite
     """
-    # the directory where the script will store images
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--field_filename", required=True)
     parser.add_argument("--ground_kpts", required=True)

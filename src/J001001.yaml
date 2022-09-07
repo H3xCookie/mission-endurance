@@ -3,6 +3,7 @@ runtime: rpi
 type: python
 script: start.py
 files:
+  __init__.py
   cloud_mask.py
   compute_coastline.py
   correlate_images.py

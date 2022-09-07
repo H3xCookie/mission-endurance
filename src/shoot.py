@@ -1,5 +1,7 @@
 import datetime
+import json
 import os
+import re
 import subprocess
 import time
 from datetime import datetime
@@ -17,31 +19,53 @@ def take_picture_from_file(filename) -> SatImage:
     return SatImage(filename=filename)
 
 
-def take_picture(unix_timestamp) -> SatImage:
+def take_picture(job_path, unix_timestamp) -> SatImage:
     """
     A fucntion which interfaces with the camera of the satellite and returns a picture. It returns the image in BGR format, so SatImage.data[0] is the blue band
     returns: A `SatImage` class, which wraps around the tif produced by the satellite
     """
     # satellite >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # TODO test; approx time it takes for the sat to take a photo
-    # time_delay = 4
-    # # the unix time in seconds
-    # print(f"approx start of the program is {datetime.utcnow().timestamp()}")
-    # while datetime.utcnow().timestamp() < unix_timestamp - time_delay:
-    #     time.sleep(0.5)
+    time_delay = 4
+    # the unix time in seconds
+    print(f"approx start of the program is {datetime.utcnow().timestamp()}")
+    while datetime.utcnow().timestamp() < unix_timestamp - time_delay:
+        time.sleep(0.1)
 
-    # subprocess.run(["./src/take_picture.sh"])
-    # picture_filename = os.listdir(
-    #     "./satellite_images/"
-    # )[0]
-    # rgb_image = take_picture_from_file(picture_filename)
+    interface_with_camera(job_path)
+    rgb_image = take_picture_from_file("./image_custom.tiff")
 
-    # # flip it because the satellite gives images in RGB and all the code works with BGR
-    # return SatImage(image=np.flip(rgb_image.data, axis=2))
+    # flip it because the satellite gives images in RGB and all the code works with BGR
+    return SatImage(image=np.flip(rgb_image.data, axis=2))
     # ==============================================================
 
-    filename = "./remove_this_dir/rotated_namibia_picture.tiff"
-    # flip picture since it is already in bgr
-    picture = take_picture_from_file(filename)
-    return SatImage(image=np.flip(picture.data, axis=2))
-    # testing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+#     filename = "./remove_this_dir/rotated_namibia_picture.tiff"
+#     # flip picture since it is already in bgr
+#     picture = take_picture_from_file(filename)
+#     return SatImage(image=np.flip(picture.data, axis=2))
+# testing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+def interface_with_camera(job_path):
+    camera_client = "/usr/bin/es_rpiMgrClient"
+    camera_exec = subprocess.Popen(
+        [camera_client, "camera", "--capture", job_path, "-t", "tiff", "-p", "1"],
+        stdout=subprocess.PIPE,
+    )
+    camera_response_str = camera_exec.communicate()[0].decode("utf-8")
+    p = re.compile("{'status': .*")
+    camera_response_jsons = p.findall(camera_response_str)
+    if len(camera_response_jsons) == 0:
+        print("Camera Error: " + camera_response_str)
+        return
+
+    q = re.compile("'")
+    camera_json_str = q.sub('"', camera_response_jsons[0])
+    camera_json = json.loads(camera_json_str)
+    print(camera_json)
+    image_file = camera_json["value"]
+    try:
+        if os.path.isfile(image_file):
+            os.rename(image_file, job_path + "image_custom.tiff")
+    except:
+        pass

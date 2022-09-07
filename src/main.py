@@ -25,19 +25,19 @@ def sat_main(scale_factor=(5, 5)):
     the main fn which runs on the satellite
     """
     # the directory where the script will store images
-    run(["mkdir", "./satellite_images"])
 
-    parser = argparse.ArgumentParser(description="pass ")
+    parser = argparse.ArgumentParser()
     parser.add_argument("--field_filename", required=True)
     parser.add_argument("--ground_kpts", required=True)
     parser.add_argument("--time_filename", required=True)
+    parser.add_argument("--job_path", required=True)
     args = parser.parse_args()
 
     # ===================camera setup================================
     time_to_take_picture = read_config_files.time_of_photo(args.time_filename)
 
     # ===================satellite image manupulations==================
-    sat_image = shoot.take_picture(time_to_take_picture)
+    sat_image = shoot.take_picture(args.job_path, time_to_take_picture)
     sat_image.mask = cloud_mask.cloud_mask(sat_image)
     sat_coastline = compute_coastline.compute_coastline(sat_image)
     sat_coastline_keypoints = correlate_images.get_keypoints(
@@ -65,41 +65,16 @@ def sat_main(scale_factor=(5, 5)):
         )
     )
 
-    # satellite >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # # =========================beam results back(for the sat)====================
-    # # pass aligned image and coordinates to image recognition algorithm
-    # poly_points = np.flip(field_coords, axis=1)
-    # polygon = crop_field.Polygon(poly_points)
+    # =========================beam results back(for the sat)====================
+    poly_points = np.flip(field_coords, axis=1)
+    polygon = crop_field.Polygon(poly_points)
 
-    # # code for the sat
-    # only_field = crop_field.select_only_field(sat_image, polygon)
-    # average_color = np.average(only_field.data, axis=(0, 1))
-    # downlink.send_message_down(str(average_color))
-
-    # =========================================================================================
-    # ==================testing, remove before flight==================
-    fig, ax = plt.subplots(1, 2)
-    ground_image = read_ground_image.read_ground_image()
-    for index, points in enumerate([field_coords, field_coords]):
-        poly_points = np.flip(points, axis=1)
-        polygon = crop_field.Polygon(poly_points)
-
-        if index == 0:
-            only_field = crop_field.select_only_field(ground_image, polygon)
-        else:
-            only_field = crop_field.select_only_field(sat_image, polygon)
-
-        ax[index].imshow(
-            np.clip(
-                np.flip(only_field.data, axis=2).astype(np.float16) * 1.5, 0, 255
-            ).astype(np.uint8)
-        )
-
-    plt.show()
-    # testing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    # code for the sat
+    only_field = crop_field.select_only_field(sat_image, polygon)
+    average_color = np.average(only_field.data, axis=(0, 1))
+    downlink.send_message_down(str(average_color))
 
 
 if __name__ == "__main__":
     scale_factor = (10, 10)
-    # precompute_coastline.precompute_coastline_keypoints(scale_factor)
     sat_main(scale_factor)

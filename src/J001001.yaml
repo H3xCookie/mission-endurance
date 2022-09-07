@@ -3,14 +3,14 @@ runtime: rpi
 type: python
 script: start.py
 files:
-  __init__.py
   cloud_mask.py
   compute_coastline.py
   correlate_images.py
   crop_field.py
   downlink.py
-  field_coords_1.csv
+  field_coords_1.cvs
   ground_keypoints_10_10_1.pkl
+  __init__.py
   main.py
   precompute_coastline.py
   read_config_files.py

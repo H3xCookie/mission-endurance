@@ -28,7 +28,10 @@ First we pick a field next to a coastline, for easier correlation of coordinate 
 
 ### `config_scripts/`
 
-Contains the config files which tell the satellite which field it should image, at what time the program should take a picture and which coastline file should it use. 
+Contains the config files which tell the satellite which field it should image, at what time the program should take a picture and which coastline file should it use. Each pass is a folder with the UTC time of the pass above Bulgaria, and must contain
+1. A `field_coords.csv` file which contains the coordinates of each corner of the field in the form `x, y`, in the coordinate system $E$ of the ground picture. The field coordinates should be specified in a counter-clockwise direction if $x$ is right and $y$ is down.
+2. A `Time.txt` file, which specifies the time in UTC at which we should take a picture.
+3. A `ground_keypoints_{xx}_{xx}.pkl` file which contains the pickled `Keypoints` object for the ground image. It is produced by the `precompute_coastline/precompute_coastline_keypoints` function. The `xx` is the scale factor using which the image was scaled before calculating the keypoints, usually $xx=10$.
 
 ### `scripts`
 

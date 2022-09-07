@@ -30,7 +30,7 @@ def sat_main(scale_factor=(5, 5)):
     """
     # os.chdir("/work/mission-endurance/")
     parser = argparse.ArgumentParser(
-        description="Pass the name of the pass folder, ex pass_1, and the filename of the keypoints of the ground image, ex config_files/pass_1/ground_keypoints_{scale_factor[0]}_{scale_factor[1]}.pkl"
+        description="Pass the name of the config_folder/pass folder, ex pass_1, and the filename of the keypoints of the ground image, ex config_files/pass_1/ground_keypoints_{scale_factor[0]}_{scale_factor[1]}.pkl"
     )
     parser.add_argument("--pass_folder", required=True)
     parser.add_argument("--ground_keypoints", required=True)
@@ -77,9 +77,7 @@ def sat_main(scale_factor=(5, 5)):
 
     # =========================beam results back====================
     fig, ax = plt.subplots(1, 2)
-    # ground_image = SatImage(image=cv2.imread(""))
     ground_image = read_ground_image.read_ground_image(pass_folder)
-    ground_image.data = np.flip(ground_image.data, axis=2)
     for index, points in enumerate([field_coords, field_coords]):
         # pass aligned image and coordinates to image recognition algorithm
         poly_points = np.flip(points, axis=1)
@@ -108,6 +106,6 @@ if __name__ == "__main__":
     # preview_ground_image()
     scale_factor = (10, 10)
     precompute_coastline.precompute_coastline_keypoints(
-        "2022-09-08T11_58_04", scale_factor
+        "config_files/2022-09-08T11_58_04", scale_factor
     )
     sat_main(scale_factor)

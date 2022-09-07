@@ -34,7 +34,6 @@ def precompute_coastline_keypoints(pass_folder, scale_factor=(5, 5)):
     # plt.show()
     # new_filename = f"./monkedir/precomputed_scaled_{scale_factor[0]}_{scale_factor[1]}keypoints.pkl"
     keypoint_filename = os.path.join(
-        "config_files",
         pass_folder,
         f"ground_keypoints_{scale_factor[0]:.0f}_{scale_factor[1]:.0f}.pkl",
     )

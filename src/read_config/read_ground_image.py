@@ -12,7 +12,7 @@ def read_ground_image(pass_folder) -> SatImage:
     """
     returns a SatImage of the image we have on the ground
     """
-    image_filename = os.path.join("config_files", pass_folder, "ground_image.tiff")
+    image_filename = os.path.join(pass_folder, "ground_image.tiff")
     # flip because the image is already in bgr
     default_image = SatImage(image=np.flip(cv2.imread(image_filename), axis=2))
     default_image.mask = cloud_mask.cloud_mask(default_image)

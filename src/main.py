@@ -5,6 +5,7 @@ import sys
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.lines import Line2D
 
 from communications import downlink
 from preprocessing import cloud_mask, precompute_coastline
@@ -61,6 +62,30 @@ def sat_main(scale_factor=(5, 5)):
     ax[1].imshow(sat_coastline.data)
     ax[0].title.set_text("Ground image")
     ax[1].title.set_text("Satellite image")
+
+    custom_lines = [
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="white",
+            label="Sea",
+            markerfacecolor="yellow",
+            markersize=15,
+        ),
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="white",
+            label="Land",
+            markerfacecolor="purple",
+            markersize=15,
+        ),
+    ]
+
+    ax[0].legend(custom_lines, ["Sea", "Land"])
+    ax[1].legend(custom_lines, ["Sea", "Land"])
     plt.show()
 
     sat_coastline_keypoints = correlate_images.get_keypoints(
@@ -99,6 +124,39 @@ def sat_main(scale_factor=(5, 5)):
     ax[0].title.set_text("Ground coastline")
     ax[1].imshow(sat_output_with_keypoints)
     ax[1].title.set_text("Satellite coastline")
+
+    custom_lines = [
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="white",
+            label="Sea",
+            markerfacecolor="white",
+            markersize=15,
+        ),
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="white",
+            label="Land",
+            markerfacecolor="black",
+            markersize=15,
+        ),
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="white",
+            label="Keypoint",
+            markerfacecolor="red",
+            markersize=15,
+        ),
+    ]
+
+    ax[0].legend(custom_lines, ["Sea", "Land", "Keypoint"])
+    ax[1].legend(custom_lines, ["Sea", "Land", "Keypoint"])
     plt.show()
 
     # =====================ground image manupulations==================

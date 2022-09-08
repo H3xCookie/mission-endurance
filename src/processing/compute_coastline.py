@@ -1,7 +1,6 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-
 from time_and_shoot.sat_image import SatImage
 
 
@@ -40,6 +39,7 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
     plt.hist(blueness_image.reshape((height * width,)), bins=100)
     plt.vlines(threshold, 0, 2.7e6, color="black")
     plt.xlabel("Blueness index")
+    plt.suptitle("Blueness index histogram")
     plt.ylabel("N")
 
     plt.show()

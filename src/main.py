@@ -11,7 +11,7 @@ from preprocessing import cloud_mask, precompute_coastline
 from processing import compute_coastline, correlate_images, crop_field
 from processing.correlate_images import Keypoints
 from read_config import read_config_files, read_ground_image
-from time_and_shoot import setup_camera, shoot
+from time_and_shoot import shoot
 from time_and_shoot.sat_image import SatImage
 
 
@@ -41,6 +41,12 @@ def sat_main(scale_factor=(5, 5)):
 
     # ===================satellite image manupulations==================
     sat_image = shoot.take_picture(time_to_take_picture)
+    ground_image = SatImage(
+        image=cv2.imread(os.path.join(pass_folder, "ground_image.tiff"))
+    )
+    plt.imshow(ground_image.data)
+    plt.suptitle("Ground image")
+    plt.show()
     plt.imshow(np.flip(sat_image.data, axis=2))
     plt.suptitle("Satellite image")
     plt.show()
@@ -79,7 +85,7 @@ def sat_main(scale_factor=(5, 5)):
     # =====================aligning of the sat image==================
     print("compute homography")
     align_result = correlate_images.compute_transform_from_keypoints(
-        sat_coastline_keypoints, ground_keypoints
+        sat_coastline_keypoints, ground_keypoints, sat_image, ground_image
     )
     homography, align_was_successful = align_result
     if not align_was_successful:

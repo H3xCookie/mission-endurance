@@ -1,6 +1,7 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+
 from time_and_shoot.sat_image import SatImage
 
 
@@ -82,6 +83,8 @@ class Keypoints:
 def compute_transform_from_keypoints(
     sat_keypoints: Keypoints,
     ground_keypoints: Keypoints,
+    sat_image: SatImage,
+    ground_image: SatImage,
 ):
     """
     computes and returns the affine transformation (homography) which maps the sat_keypoints to ground_keypoints, as well as a boolean whether it was successful.
@@ -109,6 +112,18 @@ def compute_transform_from_keypoints(
         p2[i, :] = kpsB[matches[i].trainIdx].pt
 
     homography, _ = cv2.findHomography(p1, p2, cv2.RANSAC)
+
+    results = cv2.drawMatches(
+        np.flip(sat_image.data, axis=2),
+        kpsA,
+        ground_image.data,
+        kpsB,
+        matches,
+        None,
+        flags=2,
+    )
+    plt.imshow(results)
+    plt.show()
 
     stretch_matrix = homography[:2, :2]
     main_diagonal = stretch_matrix[0, 0] * stretch_matrix[1, 1]

@@ -1,6 +1,6 @@
 import os
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 
 from sat_image import SatImage

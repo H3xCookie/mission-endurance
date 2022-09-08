@@ -4,7 +4,7 @@ import sys
 from subprocess import run
 
 import cv2
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 
 import cloud_mask
@@ -70,6 +70,11 @@ def sat_main(scale_factor=(5, 5)):
     only_field = crop_field.select_only_field(sat_image, polygon)
     average_color = np.average(only_field.data, axis=(0, 1))
     downlink.send_message_down(str(average_color))
+    sky_lens_index = (average_color[2] - average_color[1]) / (
+        average_color[1] - average_color[0]
+    )
+    print(f"skylens: {sky_lens_index}")
+    print(f"NDVI: {(2.48 - sky_lens_index)/4.26}")
 
 
 if __name__ == "__main__":

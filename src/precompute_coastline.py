@@ -2,7 +2,7 @@ import os
 
 import cv2
 import dill as pickle
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 
 import compute_coastline

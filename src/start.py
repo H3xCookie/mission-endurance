@@ -21,11 +21,13 @@ if __name__ == "__main__":
         if time_of_program_starting < utc_time_of_pass - 5:
             passes_in_future.append(p)
 
+    print(passes_in_future)
     if len(passes_in_future) == 0:
         print("started too late, all planned passes are in the past now")
         sys.exit("too late to start main fn")
     else:
         our_pass = passes[passes_in_future[0]]
+        print(our_pass)
         run(
             [
                 "python3",

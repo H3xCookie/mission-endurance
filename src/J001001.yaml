@@ -8,7 +8,7 @@ files:
   correlate_images.py
   crop_field.py
   downlink.py
-  field_coords_1.cvs
+  field_coords_1.csv
   ground_keypoints_10_10_1.pkl
   __init__.py
   main.py

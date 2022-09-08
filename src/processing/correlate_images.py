@@ -1,7 +1,6 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-
 from time_and_shoot.sat_image import SatImage
 
 
@@ -113,6 +112,7 @@ def compute_transform_from_keypoints(
 
     homography, _ = cv2.findHomography(p1, p2, cv2.RANSAC)
 
+    print(len(kpsA), len(kpsB))
     results = cv2.drawMatches(
         np.flip(sat_image.data, axis=2),
         kpsA,

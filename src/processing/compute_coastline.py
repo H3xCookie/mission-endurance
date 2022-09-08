@@ -1,6 +1,7 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+
 from time_and_shoot.sat_image import SatImage
 
 
@@ -23,8 +24,6 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
     max_value = np.quantile(blue_values, 0.98)
     blue_values = np.clip(blue_values.astype(np.float16) * 254.0 / max_value, 0, 255)
     blue_values = blue_values.astype(np.uint8)
-    # plt.hist(blue_values, bins=100)
-    # plt.show()
 
     filter_size = max(5, int(int(0.01 * height) / 2) * 2 + 1)
     print(filter_size)
@@ -33,9 +32,17 @@ def compute_coastline(sat_image: SatImage) -> SatImage:
         (filter_size, filter_size),
         0,
     )
-    _, coastline_mask = cv2.threshold(
+    print(blueness_image.shape)
+    print("show hist")
+    threshold, coastline_mask = cv2.threshold(
         blueness_image, 0, 1, cv2.THRESH_BINARY + cv2.THRESH_OTSU
     )
+    plt.hist(blueness_image.reshape((height * width,)), bins=100)
+    plt.vlines(threshold, 0, 2.7e6, color="black")
+    plt.xlabel("Blueness index")
+    plt.ylabel("N")
+
+    plt.show()
 
     coastline_mask = coastline_mask.astype(bool)
 

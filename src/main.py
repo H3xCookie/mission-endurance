@@ -52,9 +52,17 @@ def sat_main(scale_factor=(5, 5)):
     plt.show()
     sat_image.mask = cloud_mask.cloud_mask(sat_image)
     sat_coastline = compute_coastline.compute_coastline(sat_image)
-    plt.imshow(sat_coastline.data)
-    plt.suptitle("Satellite coastline")
+    ground_coastline = compute_coastline.compute_coastline(
+        SatImage(image=np.flip(ground_image.data, axis=2))
+    )
+
+    coast_fig, ax = plt.subplots(1, 2)
+    ax[0].imshow(ground_coastline.data)
+    ax[1].imshow(sat_coastline.data)
+    ax[0].title.set_text("Ground image")
+    ax[1].title.set_text("Satellite image")
     plt.show()
+
     sat_coastline_keypoints = correlate_images.get_keypoints(
         sat_coastline, scale_factor
     )
@@ -62,24 +70,41 @@ def sat_main(scale_factor=(5, 5)):
     sat_output_with_keypoints = cv2.cvtColor(
         sat_coastline.data.astype(np.uint8) * 255, cv2.COLOR_GRAY2RGB
     )
-    for kp in sat_coastline_keypoints.kpts:
+    for kp in sat_coastline_keypoints.kpts[:50]:
         x, y = kp.pt
         cv2.circle(
             sat_output_with_keypoints,
             (int(x), int(y)),
-            15,
+            30,
             color=(255, 0, 0),
             thickness=-1,
         )
-    print("output_with_keypoints")
-    plt.imshow(sat_output_with_keypoints)
-    plt.suptitle("Satellite coastline with keypoints")
+    ground_keypoints = read_ground_image.read_ground_keypoints(args.ground_keypoints)
+
+    ground_output_with_keypoints = cv2.cvtColor(
+        ground_coastline.data.astype(np.uint8) * 255, cv2.COLOR_GRAY2RGB
+    )
+    for kp in ground_keypoints.kpts[:50]:
+        x, y = kp.pt
+        cv2.circle(
+            ground_output_with_keypoints,
+            (int(x), int(y)),
+            30,
+            color=(255, 0, 0),
+            thickness=-1,
+        )
+
+    kpts_fig, ax = plt.subplots(1, 2)
+    ax[0].imshow(ground_output_with_keypoints)
+    ax[0].title.set_text("Ground coastline")
+    ax[1].imshow(sat_output_with_keypoints)
+    ax[1].title.set_text("Satellite coastline")
     plt.show()
+
     # =====================ground image manupulations==================
     field_coords = read_config_files.field_coords(pass_folder)
 
     print("load precomputed coastline Keypoints")
-    ground_keypoints = read_ground_image.read_ground_keypoints(args.ground_keypoints)
 
     # compute and apply homography to the original sat image
     # =====================aligning of the sat image==================
@@ -105,6 +130,7 @@ def sat_main(scale_factor=(5, 5)):
     # =========================beam results back====================
     fig, ax = plt.subplots(1, 2)
     ground_image = read_ground_image.read_ground_image(pass_folder)
+    average_color = np.array([0, 0, 0])
     for index, points in enumerate([field_coords, field_coords]):
         # pass aligned image and coordinates to image recognition algorithm
         poly_points = np.flip(points, axis=1)
@@ -116,15 +142,24 @@ def sat_main(scale_factor=(5, 5)):
 
         if index == 0:
             only_field = crop_field.select_only_field(ground_image, polygon)
+            ax[index].title.set_text("Field on the ground")
+
         else:
             only_field = crop_field.select_only_field(sat_image, polygon)
+            ax[index].title.set_text("Field on the satellite")
 
-        # downlink.send_message_down(f"{green_index}: {is_planted}")
         ax[index].imshow(
             np.clip(
                 np.flip(only_field.data, axis=2).astype(np.float16) * 1.5, 0, 255
             ).astype(np.uint8)
         )
+
+    print(average_color)
+    sky_lens = (average_color[2] - average_color[1]) / (
+        average_color[1] - average_color[0]
+    )
+    print(f"skylens: {sky_lens}")
+    print(f"ndvi: {(2.48 - sky_lens)/4.26}")
 
     plt.show()
 

@@ -12,6 +12,7 @@ import compute_coastline
 import correlate_images
 import crop_field
 import downlink
+import precompute_coastline
 import read_config_files
 import read_ground_image
 import shoot
@@ -79,4 +80,5 @@ def sat_main(scale_factor=(5, 5)):
 
 if __name__ == "__main__":
     scale_factor = (10, 10)
+    # precompute_coastline.precompute_coastline_keypoints(scale_factor)
     sat_main(scale_factor)

@@ -32,32 +32,36 @@ def take_picture(job_path, unix_timestamp) -> SatImage:
             time.sleep(0.1)
 
     interface_with_camera(job_path)
-    rgb_image = take_picture_from_file("./image_custom.tiff")
+    rgb_image = take_picture_from_file("./image_custom.tif")
 
     # flip it because the satellite gives images in RGB and all the code works with BGR
     return SatImage(image=np.flip(rgb_image.data, axis=2))
 
 
 def interface_with_camera(job_path):
-    camera_client = "/usr/bin/es_rpiMgrClient"
-    camera_exec = subprocess.Popen(
-        [camera_client, "camera", "--capture", job_path, "-t", "tif", "-p", "1"],
-        stdout=subprocess.PIPE,
-    )
-    camera_response_str = camera_exec.communicate()[0].decode("utf-8")
-    p = re.compile("{'status': .*")
-    camera_response_jsons = p.findall(camera_response_str)
-    if len(camera_response_jsons) == 0:
-        print("Camera Error: " + camera_response_str)
-        return
+    # testing without simulated image >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # camera_client = "/usr/bin/es_rpiMgrClient"
+    # camera_exec = subprocess.Popen(
+    #     [camera_client, "camera", "--capture", job_path, "-t", "tif", "-p", "1"],
+    #     stdout=subprocess.PIPE,
+    # )
+    # camera_response_str = camera_exec.communicate()[0].decode("utf-8")
+    # p = re.compile("{'status': .*")
+    # camera_response_jsons = p.findall(camera_response_str)
+    # if len(camera_response_jsons) == 0:
+    #     print("Camera Error: " + camera_response_str)
+    #     return
 
-    q = re.compile("'")
-    camera_json_str = q.sub('"', camera_response_jsons[0])
-    camera_json = json.loads(camera_json_str)
-    print(camera_json)
-    image_file = camera_json["value"]
-    try:
-        if os.path.isfile(image_file):
-            os.rename(image_file, job_path + "image_custom.tif")
-    except:
-        pass
+    # q = re.compile("'")
+    # camera_json_str = q.sub('"', camera_response_jsons[0])
+    # camera_json = json.loads(camera_json_str)
+    # print(camera_json)
+    # image_file = camera_json["value"]
+    # try:
+    #     if os.path.isfile(image_file):
+    #         os.rename(image_file, job_path + "image_custom.tif")
+    # except:
+    #     pass
+    # ===================================================================
+    pass
+    # testing with simulated image <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

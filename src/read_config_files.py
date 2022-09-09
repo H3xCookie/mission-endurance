@@ -18,7 +18,7 @@ def field_coords(field_coords_filename):
     return coords_array
 
 
-def time_of_photo(time_filename):
+def time_of_photo(time_filename) -> float:
     """
     returns the utc timestamp in seconds
     """

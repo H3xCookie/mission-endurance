@@ -27,8 +27,9 @@ def take_picture(job_path, unix_timestamp) -> SatImage:
     time_delay = 4
     # the unix time in seconds
     print(f"approx start of the program is {datetime.utcnow().timestamp()}")
-    while datetime.utcnow().timestamp() < unix_timestamp - time_delay:
-        time.sleep(0.1)
+    if False:
+        while datetime.utcnow().timestamp() < unix_timestamp - time_delay:
+            time.sleep(0.1)
 
     interface_with_camera(job_path)
     rgb_image = take_picture_from_file("./image_custom.tiff")
@@ -40,7 +41,7 @@ def take_picture(job_path, unix_timestamp) -> SatImage:
 def interface_with_camera(job_path):
     camera_client = "/usr/bin/es_rpiMgrClient"
     camera_exec = subprocess.Popen(
-        [camera_client, "camera", "--capture", job_path, "-t", "tiff", "-p", "1"],
+        [camera_client, "camera", "--capture", job_path, "-t", "tif", "-p", "1"],
         stdout=subprocess.PIPE,
     )
     camera_response_str = camera_exec.communicate()[0].decode("utf-8")
@@ -57,6 +58,6 @@ def interface_with_camera(job_path):
     image_file = camera_json["value"]
     try:
         if os.path.isfile(image_file):
-            os.rename(image_file, job_path + "image_custom.tiff")
+            os.rename(image_file, job_path + "image_custom.tif")
     except:
         pass

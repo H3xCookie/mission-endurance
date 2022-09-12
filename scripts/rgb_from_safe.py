@@ -23,11 +23,11 @@ with rasterio.open(im_filename) as band:
     print(band.shape)
     meta = band.meta
 
-meta.update(count=4, driver="GTiff", dtype=np.uint8)
+meta.update(count=4, driver="GTiff", dtype=np.uint16)
 print(meta)
 
 with rasterio.open(
-    os.path.join(safe_filename, "rgbnir_image_2.tif"), "w", **meta
+    os.path.join(safe_filename, "rgbnir_image_correct_scaling.tif"), "w", **meta
 ) as stack:
     for num_index, index in enumerate(indeces):
         im_filename = os.path.join(all_images_folder, images[index - 1])
@@ -36,11 +36,4 @@ with rasterio.open(
             band_data = band.read(1)
             print(band_data.dtype)
             print(np.max(band_data))
-            band_data = np.clip(band_data.astype(np.float16) / 255, 0, 255).astype(
-                np.uint8
-            )
             stack.write_band(num_index + 1, band_data)
-
-# with rasterio.open(os.path.join(safe_filename, "stacked_rgb.tif")) as stack:
-#     plt.imshow(np.moveaxis(stack.read(), 0, 2))
-#     plt.show()

@@ -3,6 +3,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import time
 from datetime import datetime
 
@@ -16,7 +17,11 @@ def take_picture_from_file(filename) -> SatImage:
     takes an image filaneme(.tif) and bands, a tuple of ints specifying which bands should the output have, ex. (4, 3, 2) if we want RGB
     returns SatImage with shape (len(bands), height, width)
     """
-    return SatImage(filename=filename)
+    if os.path.isfile(filename):
+        return SatImage(filename=filename)
+    else:
+        print("no image found, aborting")
+        sys.exit(-1)
 
 
 def take_picture(job_path, unix_timestamp) -> SatImage:
